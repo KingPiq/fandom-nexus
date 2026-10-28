@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Pet Arena | Level 25 Monsters</title>
+<style>
+:root{--bg:#101321;--panel:#1c2035;--line:#414a6c;--text:#f5f4ff;--muted:#b6bddc;--purple:#a88bff;--gold:#ffd166}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top,#292448,transparent 42%),var(--bg);color:var(--text);font-family:system-ui,Arial,sans-serif;transition:background .5s}
+body.day{--bg:#26394a;--panel:#30485b;--line:#627b91;--text:#fff9e8;--muted:#d5e3ef}
+button{font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:#353b5b;color:white;cursor:pointer;touch-action:manipulation}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:#654bb3;border-color:var(--purple)}
+button.gold{background:#72531b;border-color:var(--gold)}
+button.green{background:#245d47;border-color:#4ebc8b}
+button.red{background:#6a2c44;border-color:#bc5e7a}
+header{padding:15px;background:#0c0e1ddd;border-bottom:1px solid var(--line)}
+.header-inner,main{width:min(1200px,100%);margin:auto}
+.header-inner{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{font-size:1.3rem;font-weight:900}.brand span{color:var(--purple)}
+.small{font-size:.85rem;color:var(--muted)}
+#worldClockTrack{height:19px;position:relative;margin:0 0 12px;border:1px solid #68739b;border-radius:99px;overflow:visible;background:linear-gradient(90deg,#111936 0%,#293a63 20%,#f0a66e 26%,#71c8f0 32%,#8fdbff 50%,#f0b274 74%,#34305d 82%,#111936 100%);box-shadow:inset 0 2px 5px #0008}
+#worldClockTrack:before{content:"";position:absolute;inset:0;border-radius:99px;background:linear-gradient(90deg,#0a1025aa 0%,transparent 27%,transparent 72%,#0a1025aa 100%);pointer-events:none}
+#worldClockMarker{position:absolute;top:50%;left:33.333%;transform:translate(-50%,-50%);height:25px;min-width:25px;display:grid;place-items:center;border-radius:50%;background:#191d36;border:2px solid #ffe49a;box-shadow:0 0 8px #ffe49a99;font-size:14px;line-height:1;transition:left .35s linear}
+main{padding:18px}
+.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.85fr);gap:16px;margin-top:18px}
+.panel{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:0 12px 40px #0002}
+.panel-heading,.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:14px 0}
+.stat{padding:10px;background:#121629;border:1px solid #303754;border-radius:10px}
+.stat-label{font-size:.76rem;color:var(--muted)}.stat-value{font-size:1.1rem;font-weight:850;margin-top:3px}
+.map-wrap{border:2px solid #59628a;border-radius:13px;overflow:hidden;background:#101726}
+#worldMap{display:block;width:100%;aspect-ratio:1;max-height:620px;image-rendering:pixelated;touch-action:manipulation}
+.map-hint{padding:9px;background:#111629;color:var(--muted);font-size:.82rem;line-height:1.5}
+.map-actions,.regions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.map-actions button,.regions button{flex:1}
+.regions button.active{outline:2px solid var(--gold);background:#574720}
+.movement-area{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0}
+.joystick-wrap{display:flex;align-items:center;gap:10px}
+#joystick{width:110px;height:110px;flex-shrink:0;border-radius:50%;border:2px solid #7b72b8;background:radial-gradient(circle,#363052,#191b32);position:relative;touch-action:none;user-select:none}
+#joystickThumb{position:absolute;left:50%;top:50%;width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#c6b5ff,#7864c5);border:2px solid #eee4ff;transform:translate(-50%,-50%);pointer-events:none}
+.joy-help{max-width:125px;color:var(--muted);font-size:.8rem}
+.dpad{display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(2,40px);gap:4px}
+.dpad button{padding:3px}.dpad .up{grid-column:2}.dpad .left{grid-column:1;grid-row:2}.dpad .down{grid-column:2;grid-row:2}.dpad .right{grid-column:3;grid-row:2}
+.side-stack{display:grid;gap:15px;align-content:start}
+.pet-card,.battle-side,.monster-card{border:1px solid #414a70;border-radius:12px;padding:12px;background:#171b30}
+.pet-top{display:flex;align-items:center;gap:12px}
+.pet-emoji{width:68px;height:68px;display:grid;place-items:center;flex-shrink:0;background:#14182b;border:1px solid #45496e;border-radius:13px;font-size:2.5rem}
+.pet-name{font-size:1.1rem;font-weight:900}
+.progress{height:9px;border-radius:99px;overflow:hidden;background:#101426;border:1px solid #343b5b;margin-top:7px}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,#8b73f5,#d3a5ff);transition:width .25s}
+.pet-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.pet-picker button{text-align:left;padding:10px}.pet-picker button.selected{border-color:var(--gold);background:#403820}
+.pet-picker strong,.pet-picker span{display:block}.pet-picker span{font-size:.77rem;color:var(--muted);margin-top:4px}
+.monster-list{display:grid;gap:9px}.monster-card.nearby{border-color:#e5bd60}
+.monster-meta{font-size:.8rem;color:var(--muted);margin-top:5px}
+.monster-card button{margin-top:9px;width:100%}
+#battlePanel{border-color:#bc5e7a;background:linear-gradient(145deg,#39243a,#1d2037)}
+.battle-side{margin:8px 0;background:#15182b;border-color:#4a405c;position:relative;overflow:hidden}
+.battle-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.battle-buttons button{min-height:44px}
+.log{background:#111527;border:1px solid #303754;border-radius:10px;padding:10px;max-height:220px;overflow:auto;font-size:.87rem;line-height:1.5}
+.log-entry{padding:5px 0;border-bottom:1px solid #272d46}
+.toast{position:fixed;left:50%;bottom:20px;z-index:50;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 30px);padding:12px 17px;border:1px solid #7e72bb;border-radius:12px;background:#272343;box-shadow:0 8px 30px #0008;text-align:center;display:none}
+#battleIntro{position:fixed;inset:0;z-index:30;background:#080a14ee;display:none;place-items:center;text-align:center;padding:20px}
+#battleIntro.show{display:grid;animation:introFade .35s ease}
+.intro-card{max-width:420px;width:100%;background:#24213c;border:2px solid var(--purple);border-radius:20px;padding:25px;box-shadow:0 0 45px #8b73f555}
+.intro-emojis{font-size:3.2rem;display:flex;justify-content:space-around;align-items:center;margin:20px}
+.intro-emojis span{animation:bounce 1s infinite alternate}
+.intro-emojis span:last-child{animation-delay:.25s}
+.fighter-attack{animation:lunge .45s ease-in-out}
+.fighter-hit{animation:shake .4s ease-in-out}
+.fighter-special{animation:magicFlash .65s ease-in-out}
+.fighter-heal{animation:healFlash .75s ease-in-out}
+@keyframes lunge{0%,100%{transform:translateX(0) scale(1)}35%{transform:translateX(24px) scale(1.07)}65%{transform:translateX(-5px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@keyframes magicFlash{0%,100%{box-shadow:none}35%{box-shadow:0 0 28px #a88bff;border-color:#d4c4ff}65%{box-shadow:0 0 14px #a88bff}}
+@keyframes healFlash{0%,100%{box-shadow:none}40%,70%{box-shadow:0 0 25px #45f0a4;border-color:#7affbd}}
+@keyframes bounce{to{transform:translateY(-12px) rotate(5deg)}}
+@keyframes introFade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+footer{text-align:center;color:var(--muted);padding:20px;font-size:.82rem}
+@media(max-width:850px){.layout{grid-template-columns:1fr}#worldMap{max-height:560px}}
+@media(max-width:480px){main{padding:10px}.panel{padding:11px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.regions button{font-size:.75rem}}
+/* Pokémon-style close-up battle cutscene */
+#battleCutscene{position:fixed;inset:0;z-index:40;display:none;place-items:center;padding:12px;background:#080a14f5}
+#battleCutscene.show{display:grid;animation:introFade .25s ease}
+.cutscene-frame{position:relative;width:min(850px,100%);overflow:hidden;border:2px solid #a88bff;border-radius:20px;background:#171b30;box-shadow:0 0 50px #8b73f566}
+.cutscene-sky{position:relative;min-height:330px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#60528c 0,transparent 48%),linear-gradient(#252544 0%,#45436d 58%,#39465a 59%,#20283b 100%)}
+.cutscene-sky:after{content:"";position:absolute;left:-10%;right:-10%;bottom:-65px;height:150px;border-radius:50%;background:#20283b}
+.cutscene-fighter{position:absolute;z-index:2;display:grid;place-items:center;font-size:clamp(5rem,17vw,9rem);filter:drop-shadow(0 12px 5px #0005);transform-origin:center bottom}
+#closePlayerSprite{left:10%;bottom:28px}
+#closeEnemySprite{right:10%;top:48px}
+.cutscene-hud{position:absolute;z-index:4;width:min(290px,58%);padding:10px 12px;border:2px solid #b6bddc;border-radius:12px 12px 12px 3px;color:#fff;background:#111527ed;box-shadow:0 5px 15px #0005}
+#closePlayerHud{left:12px;top:12px}
+#closeEnemyHud{right:12px;bottom:12px}
+.cutscene-hud .row{gap:4px}
+.cutscene-hud strong{font-size:.95rem}
+.cutscene-hud .small{font-size:.75rem}
+.cutscene-hud .progress{margin-top:6px}
+#closePlayerBar{background:linear-gradient(90deg,#3fc786,#a9f4bc)}
+#closeEnemyBar{background:linear-gradient(90deg,#ff647f,#ffc0a1)}
+.cutscene-message{min-height:58px;padding:14px;background:#111527;border-top:1px solid #414a6c;font-weight:750}
+.cutscene-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:12px;background:#1c2035}
+.cutscene-actions button{min-width:0;padding:12px 5px}
+#cutsceneAttackFlash{position:absolute;z-index:3;inset:0;pointer-events:none;opacity:0}
+#cutsceneAttackFlash.flash{animation:cutsceneFlash .3s ease-out}
+#cutsceneAttackFlash.magic{animation:cutsceneMagic .65s ease-out}
+.cutscene-fighter.attack{animation:cutsceneLunge .42s ease-in-out}
+.cutscene-fighter.hit{animation:shake .4s ease-in-out}
+.cutscene-fighter.special{animation:cutsceneSpecial .65s ease-in-out}
+.cutscene-fighter.heal{animation:healFlash .75s ease-in-out}
+@keyframes cutsceneLunge{0%,100%{transform:translate(0,0) scale(1)}45%{transform:translate(65px,-18px) scale(1.13)}}
+@keyframes cutsceneFlash{0%{opacity:0;background:#fff}30%{opacity:.7}100%{opacity:0}}
+@keyframes cutsceneMagic{0%,100%{opacity:0}30%{opacity:.8;background:#a88bff}65%{opacity:.25;background:#fff}}
+@keyframes cutsceneSpecial{0%,100%{transform:scale(1);filter:drop-shadow(0 12px 5px #0005)}40%{transform:scale(1.22);filter:drop-shadow(0 0 28px #d9b7ff)}}
+@media(max-width:520px){
+  .cutscene-sky{min-height:300px}
+  #closePlayerSprite{left:2%;bottom:32px}
+  #closeEnemySprite{right:2%;top:70px}
+  .cutscene-hud{width:61%;padding:7px}
+  .cutscene-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+#adminInput{flex:1;min-width:0;padding:10px;border-radius:10px;border:1px solid var(--line);background:#121629;color:#fff;font:inherit}
+/* Vibrant admin */
+.admin-title{background:linear-gradient(90deg,#ffd166,#ff6ec7,#7c5cff,#3ee6c1);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:1.3rem;margin-top:16px}
+#adminTools{padding:12px;border-radius:14px;border:2px solid #ff6ec7;background:linear-gradient(145deg,#2d1850,#1b2a4a);box-shadow:0 0 24px #ff6ec755;animation:adminGlow 2.5s ease-in-out infinite alternate}
+@keyframes adminGlow{to{box-shadow:0 0 34px #3ee6c166;border-color:#3ee6c1}}
+.admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.admin-grid button{font-weight:800;border:0;color:#fff;text-shadow:0 1px 2px #0006;padding:11px 8px;transition:transform .1s,filter .1s}
+.admin-grid button:hover{transform:translateY(-2px);filter:brightness(1.15)}
+.admin-grid button:active{transform:scale(.96)}
+.ad-coin{background:linear-gradient(135deg,#ffb300,#ff7a00)}
+.ad-win{background:linear-gradient(135deg,#00c98d,#2be7c1)}
+.ad-lvl{background:linear-gradient(135deg,#7c5cff,#c04bff)}
+.ad-lvl10{background:linear-gradient(135deg,#00b4ff,#6a5cff)}
+.ad-lvl100{background:linear-gradient(135deg,#ff3d8b,#ff7a45)}
+.ad-heal{background:linear-gradient(135deg,#34d36b,#a8f04c)}
+.ad-off{background:linear-gradient(135deg,#6a2c44,#c0405e);grid-column:1/-1}
+#adminLogin button{background:linear-gradient(135deg,#7c5cff,#ff6ec7);border:0;font-weight:800}
+.admin-sub{grid-column:1/-1;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#ffd6f3;margin-top:4px;font-weight:800}
+.ad-coin2{background:linear-gradient(135deg,#ffd34d,#ff9d00)}
+.ad-shard{background:linear-gradient(135deg,#b66cff,#ff6ec7)}
+.ad-stam{background:linear-gradient(135deg,#ffb300,#ff5e3a)}
+.ad-time{background:linear-gradient(135deg,#ffcf4d,#4b5bd6)}
+.ad-kill{background:linear-gradient(135deg,#ff2d55,#8a0f3a)}
+.ad-cd{background:linear-gradient(135deg,#a88bff,#4de3ff)}
+.ad-spawn{background:linear-gradient(135deg,#ff7a45,#ff2d95)}
+.ad-clear{background:linear-gradient(135deg,#5b6b8c,#8fa3c7)}
+.ad-region{background:linear-gradient(135deg,#00c98d,#3b82f6)}
+.admin-grid button.ad-tog{background:linear-gradient(135deg,#444a6e,#2f3452)}
+.admin-grid button.ad-tog.on{background:linear-gradient(135deg,#00e0a4,#00a8ff);box-shadow:0 0 14px #00e0a499}
+
+.admin-label{display:block;font-size:.78rem;color:#f6ddff;margin-top:8px;font-weight:800}
+.admin-select,.admin-command{display:block;width:100%;min-width:0;padding:10px;border-radius:10px;border:1px solid #8272c9;background:#111629;color:#fff;font:inherit;margin-top:5px}
+.admin-select option{background:#171b30;color:#fff}
+.admin-command-help{line-height:1.5;margin-top:8px;overflow-wrap:anywhere}
+.admin-command-help code{color:#ffe2a8}
+#mobileBar{position:fixed;right:12px;bottom:14px;z-index:25;display:none;flex-direction:column;gap:8px}
+#mobileBar button{width:54px;height:54px;border-radius:50%;font-size:1.35rem;padding:0;box-shadow:0 6px 18px #0008}
+#mobileBar button.green.on,#floatRun.green{outline:2px solid #7affbd}
+@media(max-width:850px),(pointer:coarse){#mobileBar{display:flex}footer{padding-bottom:90px}}
+#helpOverlay{position:fixed;inset:0;z-index:60;display:none;place-items:center;padding:14px;background:#080a14ee}
+#helpOverlay.show{display:grid;animation:introFade .2s ease}
+.help-card{width:min(560px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:2px solid var(--purple);border-radius:18px;padding:18px;box-shadow:0 0 40px #8b73f566}
+.help-card h3{margin:14px 0 4px}.help-card p{line-height:1.6;margin:0}
+/* Monster portraits */
+.mon-pic{width:56px;height:56px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;border:2px solid var(--tint,#a88bff);background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--tint,#a88bff) 55%,#14182b),#14182b 75%);box-shadow:0 0 12px color-mix(in srgb,var(--tint,#a88bff) 50%,transparent)}
+.mon-pic img{width:42px;height:42px;image-rendering:pixelated}
+#closeEnemySprite img{filter:drop-shadow(0 0 14px var(--tint,#fff));animation:idleBob 1.3s ease-in-out infinite alternate}
+#closePlayerSprite img{animation:idleBob 1.6s ease-in-out infinite alternate-reverse}
+#closeEnemySprite:before{content:"";position:absolute;bottom:-6px;left:5%;right:5%;height:20px;border-radius:50%;background:radial-gradient(ellipse,color-mix(in srgb,var(--tint,#fff) 65%,transparent),transparent 70%);z-index:-1}
+@keyframes idleBob{to{transform:translateY(-8px)}}
+/* Better battle portraits */
+.bs-wrap{display:flex;align-items:center;gap:12px}.bs-info{flex:1;min-width:0}
+.cutscene-sky{background:radial-gradient(ellipse at 72% 22%,color-mix(in srgb,var(--tint,#a88bff) 50%,transparent) 0,transparent 52%),radial-gradient(ellipse at 50% 30%,#60528c 0,transparent 48%),linear-gradient(#252544 0%,#45436d 58%,#39465a 59%,#20283b 100%)}
+#closeEnemyHud{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center;border-width:3px}
+#closeEnemyHud>:not(.hud-pic){grid-column:2}
+.hud-pic{grid-row:1/4;width:48px;height:48px}.hud-pic img{width:36px;height:36px}
+#closeEnemySprite{font-size:clamp(5.5rem,19vw,10rem)}
+#closeEnemySprite img{width:clamp(6rem,21vw,11rem)}
+/* Pixel-art sprites */
+.cutscene-fighter img{width:clamp(5rem,17vw,9rem);height:auto;display:block;image-rendering:pixelated;image-rendering:crisp-edges;image-rendering:pixelated}
+.pet-emoji img{width:52px;height:52px;image-rendering:pixelated}
+.intro-emojis img{width:3.6rem;height:3.6rem;image-rendering:pixelated}
+/* Enemy lunges toward your pet */
+#closeEnemySprite.attack{animation:enemyLunge .42s ease-in-out}
+@keyframes enemyLunge{0%,100%{transform:translate(0,0) scale(1)}45%{transform:translate(-65px,18px) scale(1.13)}}
+#chatBox{position:fixed;left:10px;bottom:10px;z-index:26;width:min(340px,calc(100vw - 84px))}
+#chatToggle{border-radius:99px;padding:7px 14px;background:linear-gradient(135deg,#5a3fb5,#8b5fd6);border:1px solid #d4c4ff88;font-weight:800;box-shadow:0 4px 16px #0006}
+#chatToggle.new{animation:adminGlow 1s ease-in-out infinite alternate}
+#chatBody{display:none;margin-top:8px;background:linear-gradient(160deg,#241c45f2,#171b30f2);border:1px solid #a88bff66;border-radius:18px;overflow:hidden;box-shadow:0 10px 34px #0008}
+#chatBox.open #chatBody{display:block}
+#chatHead{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#a88bff22;font-weight:800;font-size:.88rem}
+#chatLog{height:170px;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:7px;font-size:.84rem;line-height:1.35;word-break:break-word;color:#fff}
+.chat-line{display:flex;gap:7px;align-items:flex-end;max-width:92%}
+.chat-line.own{flex-direction:row-reverse;align-self:flex-end}
+.chat-av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;font-size:.95rem;border:2px solid #fff4}
+.chat-bub{background:#ffffff14;border:1px solid #ffffff1a;border-radius:14px 14px 14px 4px;padding:5px 10px;min-width:0}
+.chat-line.own .chat-bub{background:#654bb3cc;border-radius:14px 14px 4px 14px}
+.chat-name{font-size:.7rem;font-weight:800;letter-spacing:.03em}
+.chat-line.sys{align-self:center;max-width:100%;text-align:center;color:#ffd6f3;font-size:.76rem;background:#ff6ec71a;border-radius:99px;padding:3px 10px}
+#chatQuick{display:flex;gap:5px;padding:0 10px 8px}
+#chatQuick button{flex:1;padding:4px 0;border-radius:99px;background:#ffffff12;border:1px solid #ffffff22;font-size:.85rem}
+#chatRow{display:flex;gap:6px;padding:0 10px 10px}
+#chatInput{flex:1;min-width:0;background:#0006;border:1px solid #a88bff55;border-radius:99px;color:#fff;padding:9px 14px;font-size:16px;outline:0}
+#chatInput:focus{border-color:var(--gold)}
+#chatRow button{border-radius:99px;background:#654bb3;border-color:var(--purple);padding:0 14px}
+/* hit effects */
+.fx-burst{position:absolute;z-index:5;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:radial-gradient(circle,#fff 0,#ffd166 40%,#ff647f66 70%,transparent 72%);animation:fxBurst .45s ease-out forwards;pointer-events:none}
+.fx-burst.big{background:radial-gradient(circle,#fff 0,#d9b7ff 40%,#a88bff66 70%,transparent 72%)}
+@keyframes fxBurst{to{transform:scale(7);opacity:0}}
+.fx-num{position:absolute;z-index:6;font-weight:900;font-size:1.6rem;color:#fff;text-shadow:0 2px 0 #c0405e,0 0 8px #000;animation:fxFloat .9s ease-out forwards;pointer-events:none;white-space:nowrap}
+.fx-num.big{font-size:2.2rem;color:#ffd166}.fx-num.foe{color:#ff8198}
+@keyframes fxFloat{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}20%{opacity:1;transform:translate(-50%,-70%) scale(1.25)}100%{opacity:0;transform:translate(-50%,-200%) scale(1)}}
+.cutscene-frame.shake{animation:frameShake .35s}
+@keyframes frameShake{0%,100%{transform:translate(0)}20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,2px)}80%{transform:translate(3px,-2px)}}
+.cutscene-fighter.hit{animation:cutsceneHit .5s ease-out}
+#closePlayerSprite.hit{animation:cutsceneHitL .5s ease-out}
+@keyframes cutsceneHit{0%{transform:translate(0);filter:brightness(4)}25%{transform:translate(18px,-6px) rotate(7deg);filter:brightness(2.2) saturate(2)}60%{transform:translate(-8px,2px) rotate(-3deg)}100%{transform:translate(0);filter:none}}
+@keyframes cutsceneHitL{0%{transform:translate(0);filter:brightness(4)}25%{transform:translate(-18px,-6px) rotate(-7deg);filter:brightness(2.2) saturate(2)}60%{transform:translate(8px,2px) rotate(3deg)}100%{transform:translate(0);filter:none}}
+.cutscene-fighter.faint{animation:faintOut .9s ease-in forwards}
+@keyframes faintOut{to{opacity:0;transform:translateY(40px) scale(.6) rotate(12deg);filter:grayscale(1)}}
+.cutscene-fighter.boss img{width:clamp(8rem,28vw,14rem)}
+/* avatar */
+#avatarOverlay{position:fixed;inset:0;z-index:60;display:none;place-items:center;padding:14px;background:#080a14ee}
+#avatarOverlay.show{display:grid;animation:introFade .2s ease}
+.av-top{display:flex;gap:14px;align-items:center;margin:12px 0;flex-wrap:wrap}
+#avPreview{background:radial-gradient(circle at 50% 40%,#3b3466,#14182b);border:1px solid var(--line);border-radius:14px;image-rendering:pixelated}
+.av-bal{font-size:1.1rem;margin-bottom:8px}
+#avTabs{display:flex;gap:6px;flex-wrap:wrap}#avTabs button.active{outline:2px solid var(--gold)}
+#avItems{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:10px}
+#avItems button{padding:8px 4px;text-align:center;font-size:.78rem}#avItems button.sel{border-color:var(--gold);background:#403820}
+.av-sw{display:block;height:28px;border-radius:8px;margin-bottom:5px;border:1px solid #fff4;font-size:1.3rem;line-height:28px}
+#bestiaryOverlay{position:fixed;inset:0;z-index:120;background:#080b16df;display:none;align-items:center;justify-content:center;padding:14px}#bestiaryOverlay.show{display:flex}.bestiary-card{width:min(900px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 20px 70px #0009}.bestiary-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.bestiary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}.bestiary-entry{border:1px solid var(--line);border-radius:12px;padding:12px;background:#14182a;min-width:0}.bestiary-entry.unknown{opacity:.72}.bestiary-icon{font-size:2rem;line-height:1.4}.bestiary-entry strong{display:block}.bestiary-entry .small{margin-top:5px}.bestiary-count{font-weight:700;color:var(--gold)}
+</style>
+</head>
+<body>
+<header><div class="header-inner">
+<div><div class="brand">✨ Fandom <span>Nexus</span></div><div class="small">PET ARENA · Explore, battle, evolve</div></div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+  <span id="nexusAuthStatus" class="small" role="status">Checking account…</span>
+  <a id="nexusAccountLink" href="account.htm" style="color:#d4c4ff">Log in / Sign up</a>
+  <button id="nexusLogoutButton" type="button" style="display:none">Log out</button>
+  <button onclick="location.href='index.htm'">← Back to Fandom Nexus</button>
+</div>
+</div></header>
+<main>
+<h1>🐾 Pet Arena</h1>
+<p class="small">Explore, discover caves, collect coins and train your companion.</p>
+<div class="stats">
+<div class="stat"><div class="stat-label">⭐ Level</div><div class="stat-value" id="statLevel">1</div></div>
+<div class="stat"><div class="stat-label">🪙 Coins</div><div class="stat-value" id="statCoins">0</div></div>
+<div class="stat"><div class="stat-label">🏆 Wins</div><div class="stat-value" id="statWins">0</div></div>
+<div class="stat"><div class="stat-label">💎 Rare shards</div><div class="stat-value" id="statShards">0</div></div>
+<div class="stat"><div class="stat-label">💠 Diamonds</div><div class="stat-value" id="statDiamonds">0</div></div>
+</div>
+<div class="layout">
+<section class="panel">
+<div class="panel-heading"><div><h2 id="mapTitle">🌿 Meadow</h2><div class="small" id="mapSubtitle"></div></div><div class="small" id="hudStage"></div></div>
+<div class="row" style="margin:10px 0"><strong id="timeLabel">🌞 08:00</strong><button id="timeSkipButton" onclick="advanceTime()" style="display:none">⏩ Skip 2 hours (Admin)</button></div>
+<div id="worldClockTrack" role="img" aria-label="Minecraft-style day and night cycle"><span id="worldClockMarker">☀️</span></div>
+<div class="row" style="margin:6px 0 0"><span class="small" id="speedLabel">🚶 Walking · speed 10</span><span class="small" id="staminaLabel">⚡ 100 / 100</span></div><div class="progress" style="margin:6px 0 12px"><div id="staminaBar" style="width:100%;background:linear-gradient(90deg,#ffb300,#ffe27a)"></div></div>
+<div class="map-wrap"><canvas id="worldMap" width="640" height="640"></canvas><div class="map-hint" id="mapHint">Move with WASD, arrows, joystick or directional buttons. Stand beside a cave and press Interact.</div></div>
+<div class="movement-area">
+<div class="joystick-wrap"><div id="joystick"><div id="joystickThumb"></div></div><div class="joy-help">Hold the stick to walk. Hold Shift or tap Run to sprint.</div></div>
+<div class="dpad"><button class="up" data-dx="0" data-dy="-1">▲</button><button class="left" data-dx="-1" data-dy="0">◀</button><button class="down" data-dx="0" data-dy="1">▼</button><button class="right" data-dx="1" data-dy="0">▶</button></div>
+</div>
+<div class="map-actions">
+<button class="primary" onclick="interactNearby()">🔎 Interact (E)</button>
+<button onclick="restPet()">💚 Rest</button>
+<button onclick="saveProgress()">💾 Save</button>
+<button id="runButton" onclick="toggleRun()">🏃 Run: Off</button>
+<button onclick="showHelp()">❓ Help</button>
+<button onclick="openAvatar()">👕 Avatar</button>
+<button class="gold" onclick="openBestiary()">📖 Bestiary &amp; Monster Index</button>
+<button id="fsButton" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+<button class="gold" id="leaveCaveButton" onclick="exitCave()" style="display:none">🚪 Leave Cave</button>
+</div>
+<h3>🗺️ Regions</h3><div class="regions">
+<button id="zone-meadow" onclick="changeZone('meadow')">🌿 Meadow</button>
+<button id="zone-cave" onclick="changeZone('cave')">🪨 Deep Cave</button>
+<button id="zone-volcano" onclick="changeZone('volcano')">🌋 Volcano</button>
+</div>
+<p class="small">Regions unlock at 0, 3 and 8 victories.</p>
+</section>
+<aside class="side-stack">
+<section class="panel">
+<h2>🐾 Your companion</h2><div class="pet-card">
+<div class="pet-top"><div class="pet-emoji" id="petPortrait">🐉</div><div style="min-width:0;flex:1"><div class="pet-name" id="petName">Ember</div><div class="small" id="petDetails"></div><div class="small" id="petStats"></div></div></div>
+<div class="row" style="margin-top:12px"><span class="small">XP to next level</span><span class="small" id="xpLabel"></span></div><div class="progress"><div id="xpBar"></div></div>
+<div class="row" style="margin-top:12px"><span class="small">Health</span><span class="small" id="petHpLabel"></span></div><div class="progress"><div id="hpBar" style="background:linear-gradient(90deg,#3fc786,#a9f4bc)"></div></div>
+</div><h3>Choose your pet</h3><div class="pet-picker" id="petPicker"></div>
+</section>
+<section class="panel"><h2>🛒 Shop</h2><div class="small">Coins: <strong id="shopCoins">0</strong> · Buy pets in "Choose your pet".</div>
+<button class="gold" id="buySpecial" style="width:100%;margin-top:10px" onclick="buySpecial()">✨ Special attack</button>
+<h3 class="admin-title">👑 Admin</h3>
+<div class="row" id="adminLogin"><input id="adminInput" type="password" placeholder="Admin code" autocomplete="off"><button onclick="tryAdmin()">Unlock</button></div>
+<div id="adminTools" style="display:none"><div class="small" style="color:#ffe9a8">⚡ Admin active — all pets and Special unlocked.</div>
+<div class="admin-grid">
+<div class="admin-sub">Resources</div>
+<button class="ad-coin" onclick="adminAction('coins')">🪙 +1000 Coins</button>
+<button class="ad-coin2" onclick="adminAction('coins10k')">💰 +10,000 Coins</button>
+<button class="ad-shard" onclick="adminAction('shards')">💎 +10 Shards</button>
+<button class="ad-lvl10" onclick="adminAction('diamonds')">💠 +10 Diamonds</button>
+<button class="ad-win" onclick="adminAction('wins')">🏆 +1 Win</button>
+<div class="admin-sub">Levels</div>
+<button class="ad-lvl" onclick="adminAction('level')">⭐ +1 Lvl</button>
+<button class="ad-lvl10" onclick="adminAction('level10')">🚀 +10 Lvl</button>
+<button class="ad-lvl100" onclick="adminAction('level100')">🔥 +100 Lvl</button>
+<button class="ad-heal" onclick="adminAction('heal')">💚 Full Heal</button>
+<div class="admin-sub">Trainer</div>
+<button class="ad-stam" onclick="adminAction('stamina')">⚡ Refill Stamina</button>
+<button class="ad-tog" id="adTogStamina" onclick="adminAction('tog:stamina')">⚡ Infinite Stamina</button>
+<button class="ad-tog" id="adTogSpeed" onclick="adminAction('tog:speed')">💨 Speed x2</button>
+<button class="ad-time" onclick="adminAction('time')">🌗 Day / Night</button>
+<div class="admin-sub">Battle</div>
+<button class="ad-tog" id="adTogGod" onclick="adminAction('tog:god')">🛡️ God Mode</button>
+<button class="ad-tog" id="adTogOne" onclick="adminAction('tog:onehit')">💥 One-Hit Kills</button>
+<button class="ad-kill" onclick="adminAction('instawin')">☠️ Instant Win</button>
+<button class="ad-cd" onclick="adminAction('cooldown')">✨ Reset Special CD</button>
+<div class="admin-sub">World</div>
+<button class="ad-spawn" onclick="adminAction('spawn')">👾 Spawn Random Monster</button>
+<button class="ad-kill" onclick="adminAction('boss')">👑 Spawn Boss (Current Region)</button>
+<button class="ad-clear" onclick="adminAction('clear')">🧹 Clear Monsters</button>
+<button class="ad-region" onclick="adminAction('regions')">🗺️ Unlock Regions</button>
+<div class="admin-sub">Custom Spawner</div>
+<label class="admin-label" for="adminSpawnSelect">Choose anything to spawn</label>
+<select id="adminSpawnSelect" class="admin-select"><option value="random">🎲 Random monster</option></select>
+<label class="admin-label" for="adminSpawnLevel">Spawn level (1–1,000,000)</label>
+<input id="adminSpawnLevel" class="admin-command" type="number" min="1" max="1000000" step="1" placeholder="Blank = normal level rules" inputmode="numeric">
+<div class="small admin-command-help">Set a level here to spawn selected monsters or bosses at that level. Admin-spawned enemies can exceed level 25.</div>
+<label class="admin-label" for="adminSpawnCount">Amount</label>
+<select id="adminSpawnCount" class="admin-select"><option value="1">1</option><option value="3">3</option><option value="5">5</option><option value="10">10</option></select>
+<button class="ad-spawn" onclick="adminSpawnSelected()">✨ Spawn Selection</button>
+<label class="admin-label" for="adminCommandInput">Admin command</label>
+<input id="adminCommandInput" class="admin-command" placeholder="e.g. spawn Mossling 3" autocomplete="off" spellcheck="false">
+<button class="ad-lvl" onclick="runAdminCommand()">⌨️ Run Command</button>
+<div class="small admin-command-help">Commands: <code>spawn Mossling level 100</code>, <code>spawn Mossling 3 level 250</code>, <code>spawn boss volcano level 500</code>, <code>spawn boss Thorn Boar King level 75</code>, <code>spawn chest 2</code>, <code>spawn all level 100</code>. Natural monsters stay at level 1–25 and natural bosses stay level 25. Admin spawn commands can set spawned monsters or bosses to level 1–1,000,000.</div>
+<button class="ad-off" onclick="adminAction('off')">🚪 Exit admin</button>
+</div></div>
+</section>
+<section class="panel" id="battlePanel" style="display:none">
+<h2>⚔️ Battle!</h2><div id="battleSummary" class="small"></div>
+<div class="battle-side" id="playerBattleSide"><div class="bs-wrap"><div class="mon-pic" id="battlePetPic"></div><div class="bs-info"><div class="row"><strong id="battlePetName">Your pet</strong><span id="battlePetHp"></span></div><div class="progress"><div id="battlePetBar" style="background:#68dba2"></div></div></div></div></div>
+<div class="battle-side" id="monsterBattleSide"><div class="bs-wrap"><div class="mon-pic" id="battleMonsterPic"></div><div class="bs-info"><div class="row"><strong id="battleMonsterName">Monster</strong><span id="battleMonsterHp"></span></div><div class="small" id="battleMonsterType"></div><div class="progress"><div id="battleMonsterBar" style="background:#ff8198"></div></div></div></div></div>
+<div class="battle-buttons">
+<button class="primary" onclick="battleAction('attack')">⚔️ Attack</button>
+<button class="gold" id="specialButton" onclick="battleAction('special')">✨ Special</button>
+<button class="green" id="healButton" onclick="battleAction('heal')">💚 Heal (5 coins)</button>
+<button class="red" onclick="battleAction('run')">🏃 Escape (50 coins)</button>
+</div>
+</section>
+<section class="panel"><div class="panel-heading"><h2>👾 Nearby monsters</h2><span class="small" id="monsterCount"></span></div><div class="monster-list" id="monsterList"></div></section>
+<section class="panel"><h2>📜 Adventure log</h2><div class="log" id="adventureLog"></div></section>
+</aside></div>
+</main>
+<footer>Fandom Nexus Pet Arena · Progress saves locally in this browser.</footer>
+<div id="mobileBar" aria-label="Quick buttons">
+<button class="primary" onclick="interactNearby()" aria-label="Interact">🔎</button>
+<button id="floatRun" onclick="toggleRun()" aria-label="Toggle run">🏃</button>
+<button class="green" onclick="restPet()" aria-label="Rest">💚</button>
+<button id="floatFs" onclick="toggleFullscreen()" aria-label="Fullscreen">⛶</button>
+<button class="gold" onclick="showHelp()" aria-label="Help">❓</button>
+</div>
+
+<div id="bestiaryOverlay" role="dialog" aria-label="Bestiary and monster index" aria-modal="true"><div class="bestiary-card">
+<div class="row"><div><h2 style="margin:0">📖 Bestiary &amp; Monster Index</h2><div class="small" id="bestiaryProgress">0 monsters discovered</div></div><button class="red" onclick="closeBestiary()">✖ Close</button></div>
+<p class="small">Discover monsters by meeting them in the wild. Defeating one records its entry; unknown entries stay hidden until you encounter them.</p>
+<div class="bestiary-tabs"><button onclick="renderBestiary('all')">🌎 All</button><button onclick="renderBestiary('meadow')">🌿 Meadow</button><button onclick="renderBestiary('cave')">🪨 Deep Cave</button><button onclick="renderBestiary('volcano')">🌋 Volcano</button><button onclick="renderBestiary('bosses')">👑 Bosses</button></div>
+<div class="bestiary-grid" id="bestiaryGrid"></div>
+</div></div>
+<div id="helpOverlay" role="dialog" aria-label="Help"><div class="help-card">
+<div class="row"><h2 style="margin:0">❓ How to play</h2><button class="red" onclick="hideHelp()">✖ Close</button></div>
+<h3>📱 Mobile</h3>
+<p class="small">🕹️ Hold the joystick or ▲◀▼▶ buttons to walk.<br>🔎 <b>Interact</b> enters caves, uses portals and starts a battle with a monster next to you.<br>🏃 <b>Run</b> toggles sprinting (uses stamina).<br>💚 <b>Rest</b> heals your pet when you are not in a battle.<br>👆 You can also tap a monster or a cave door on the map.</p>
+<h3>⌨️ Keyboard</h3>
+<p class="small">WASD or arrow keys: move · Shift: run · E or Enter: interact · Esc: leave cave or close help · H: this help · F: fullscreen.</p>
+<h3>⚔️ Battles</h3>
+<p class="small">Attack deals damage. ✨ Special needs to be bought in the shop and has a 3 turn cooldown. 💚 Heal costs 5 coins. 🏃 Escape costs 50 coins and only works 35% of the time. The maximum level is 25.</p>
+<h3>⚔️ Monster difficulty</h3><p class="small">Regular mobs have 15% more health and attack and appear about twice as often. Boss stats stay unchanged, and boss lairs become available again after 3 victories instead of 5. Only admins can skip the in-game time.</p>
+<h3>⚡ Stamina &amp; speed</h3>
+<p class="small" id="helpSpeeds"></p>
+<h3>👑 Bosses &amp; avatar</h3>
+<p class="small">Every region has a boss lair (its X/Y is shown under the region name). Regular monsters spawn at varied levels up to level 25; every boss is level 25. Bosses cannot be escaped, use a heavy strike every 3rd turn, and drop 3 rare shards. Press 👕 Avatar to style your trainer; premium items cost 💠 diamonds.</p>
+<h3>💬 Chat &amp; treasure</h3>
+<p class="small">Press <b>/</b> to chat (type /help for commands). Bad words and personal info are hidden as ####. 🐾 Your equipped pet follows you around the map. 📦 Walk over treasure chests for coins, shards or a heal. ✨ Shiny monsters give double rewards. 💥 Attacks crit 15% of the time, and win streaks give bonus coins.</p>
+<h3>🛒 Shop</h3>
+<p class="small">Win battles for coins, then press 🛒 Buy on a pet or buy the Special attack. Regions unlock at 3 and 8 wins.</p>
+</div></div>
+<div id="chatBox"><button id="chatToggle" onclick="toggleChat()">🐾 Nexus Chat</button><div id="chatBody"><div id="chatHead"><span>🐾 Nexus Chat</span><span class="small" id="chatOnline"></span></div><div id="chatLog"></div><div id="chatQuick"><button onclick="sendChat('👋')">👋</button><button onclick="sendChat('😂')">😂</button><button onclick="sendChat('🔥')">🔥</button><button onclick="sendChat('❤️')">❤️</button><button onclick="sendChat('GG!')">GG</button></div><div id="chatRow"><input id="chatInput" maxlength="100" placeholder="Say something nice… (press /)" autocomplete="off"><button onclick="submitChat()" aria-label="Send">➤</button></div></div></div>
+<div id="avatarOverlay" role="dialog" aria-label="Avatar"><div class="help-card">
+<div class="row"><h2 style="margin:0">👕 Avatar</h2><button class="red" onclick="closeAvatar()">✖ Close</button></div>
+<div class="av-top"><canvas id="avPreview" width="160" height="180"></canvas><div><div class="av-bal">💠 <b id="avDiamonds">0</b> diamonds</div><button class="gold" onclick="buyDiamonds()">➕ Buy diamonds</button><p class="small" style="margin-top:8px">Diamonds are sold in the store, or have a 0.0001% chance to drop from any monster you defeat.</p></div></div>
+<div id="avTabs"></div><div id="avItems"></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="battleIntro"><div class="intro-card"><div class="small">A WILD CHALLENGER APPEARS</div><div class="intro-emojis"><span id="introPet">🐉</span><strong>⚔️</strong><span id="introMonster">🌱</span></div><h2 id="introTitle">Let's battle!</h2><p id="introText">Your companion is ready.</p><button class="primary" onclick="finishIntro()">Let's battle!</button></div></div>
+<div id="battleCutscene" role="dialog" aria-label="Battle scene">
+  <div class="cutscene-frame">
+    <div class="cutscene-sky">
+      <div id="cutsceneAttackFlash"></div>
+      <div class="cutscene-hud" id="closePlayerHud">
+        <div class="row">
+          <strong id="closePlayerName">Ember</strong>
+          <span class="small" id="closePlayerLevel">Lv. 1</span>
+        </div>
+        <div class="progress"><div id="closePlayerBar"></div></div>
+        <div class="small" id="closePlayerHp">50 / 50 HP</div>
+      </div>
+      <div class="cutscene-fighter" id="closePlayerSprite">🐉</div>
+      <div class="cutscene-fighter" id="closeEnemySprite">🌱</div>
+      <div class="cutscene-hud" id="closeEnemyHud"><div class="mon-pic hud-pic" id="closeEnemyPic"></div>
+        <div class="row">
+          <strong id="closeEnemyName">Mossling</strong>
+          <span class="small" id="closeEnemyLevel">Lv. 1</span>
+        </div>
+        <div class="progress"><div id="closeEnemyBar"></div></div>
+        <div class="small" id="closeEnemyHp">22 / 22 HP</div>
+      </div>
+    </div>
+    <div class="cutscene-message" id="closeBattleMessage" aria-live="polite">A wild challenger appeared!</div>
+    <div class="cutscene-actions">
+      <button class="primary" onclick="battleAction('attack')">⚔️ Attack</button>
+      <button class="gold" id="closeSpecialButton" onclick="battleAction('special')">✨ Special</button>
+      <button class="green" id="closeHealButton" onclick="battleAction('heal')">💚 Heal</button>
+      <button class="red" onclick="battleAction('run')">🏃 Escape</button>
+    </div>
+  </div>
+</div>
+<!-- Load the same Supabase project/client used by Fandom Nexus account.htm. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script>
+'use strict';
+const PETS={
+ dragon:{key:'dragon',name:'Ember',species:'Dragon',emoji:'🐉',hp:50,atk:10,price:500,special:'Flame Breath',speed:8},
+ fox:{key:'fox',name:'Spark',species:'Fox',emoji:'🦊',hp:45,atk:11,price:0,special:'Quick Pounce',speed:8},
+ slime:{key:'slime',name:'Bloop',species:'Slime',emoji:'🟢',hp:60,atk:7,price:250,special:'Goo Blast',speed:8},
+ owl:{key:'owl',name:'Nova',species:'Owl',emoji:'🦉',hp:42,atk:12,price:400,special:'Star Strike',speed:8},
+ wolf:{key:'wolf',name:'Fang',species:'Wolf',emoji:'🐺',hp:48,atk:13,price:700,special:'Moon Howl',speed:8},
+ unicorn:{key:'unicorn',name:'Aurora',species:'Unicorn',emoji:'🦄',hp:56,atk:14,price:900,special:'Rainbow Beam',speed:8},
+ goblin:{key:'goblin',name:'King Grub',species:'Goblin',emoji:'👺',hp:400,atk:40,price:0,adminOnly:true,special:'Goblin Smash',speed:8}
+};
+const ZONES={
+ meadow:{key:'meadow',name:'Meadow',emoji:'🌿',subtitle:'Green fields and hidden cave entrances.',seed:1347,unlock:0,enemyLevel:1,ground:'#5b9b57'},
+ cave:{key:'cave',name:'Deep Cave',emoji:'🪨',subtitle:'An underground region of crystals.',seed:4872,unlock:3,enemyLevel:3,ground:'#55516c'},
+ volcano:{key:'volcano',name:'Volcano',emoji:'🌋',subtitle:'A scorching wilderness for experienced adventurers.',seed:9181,unlock:8,enemyLevel:6,ground:'#7d483a'}
+};
+const MONSTERS={
+ meadow:[
+  {name:'Mossling',emoji:'🌱',hp:22,atk:5,xp:25,coins:8,tint:'#58c25a',type:'Grass'},
+  {name:'Meadow Moth',emoji:'🦋',hp:24,atk:6,xp:28,coins:9,tint:'#f2a9cf',type:'Bug'},
+  {name:'Bramble Bunny',emoji:'🐇',hp:27,atk:7,xp:32,coins:10,tint:'#c9b49b',type:'Grass'},
+  {name:'Wild Boarlet',emoji:'🐗',hp:32,atk:8,xp:38,coins:13,tint:'#a87552',type:'Earth'},
+  {name:'Pollen Sprite',emoji:'🌼',hp:25,atk:9,xp:36,coins:12,tint:'#ffe16a',type:'Nature'},
+  {name:'Mushroom Buddy',emoji:'🍄',hp:30,atk:7,xp:35,coins:12,tint:'#e86b69',type:'Nature'},
+  {name:'Hedgehog Scout',emoji:'🦔',hp:34,atk:9,xp:42,coins:15,tint:'#bd986e',type:'Earth'},
+  {name:'Little Treant',emoji:'🌳',hp:40,atk:10,xp:48,coins:17,tint:'#4f9e59',type:'Grass'},
+  {name:'Shadow Fox',emoji:'🌑',hp:36,atk:11,xp:50,coins:18,tint:'#8a6ad8',type:'Shadow'}
+ ],
+ cave:[
+  {name:'Wild Bat',emoji:'🦇',hp:25,atk:6,xp:30,coins:10,tint:'#9a7bd6',type:'Dark'},
+  {name:'Crystal Bug',emoji:'🪲',hp:28,atk:7,xp:35,coins:12,tint:'#4de3ff',type:'Crystal'},
+  {name:'Stone Cub',emoji:'🪨',hp:34,atk:8,xp:40,coins:14,tint:'#c2a98a',type:'Rock'},
+  {name:'Cave Crawler',emoji:'🕷️',hp:36,atk:9,xp:43,coins:15,tint:'#a28ac9',type:'Dark'},
+  {name:'Glowworm',emoji:'🪱',hp:29,atk:8,xp:39,coins:14,tint:'#8cffb0',type:'Crystal'},
+  {name:'Crystal Golem',emoji:'💎',hp:48,atk:11,xp:55,coins:20,tint:'#4de3ff',type:'Crystal'},
+  {name:'Rock Mimic',emoji:'🪨',hp:44,atk:12,xp:52,coins:19,tint:'#9a91a8',type:'Rock'},
+  {name:'Cave Slime',emoji:'🟣',hp:38,atk:10,xp:48,coins:17,tint:'#b47aff',type:'Slime'},
+  {name:'Crystal Moth',emoji:'🦋',hp:41,atk:12,xp:55,coins:20,tint:'#72e7ff',type:'Crystal'}
+ ],
+ volcano:[
+  {name:'Flame Imp',emoji:'🔥',hp:40,atk:10,xp:48,coins:17,tint:'#ff7a45',type:'Fire'},
+  {name:'Ash Lizard',emoji:'🦎',hp:44,atk:11,xp:52,coins:19,tint:'#ff9b57',type:'Fire'},
+  {name:'Magma Crab',emoji:'🦀',hp:48,atk:12,xp:58,coins:21,tint:'#ff6548',type:'Lava'},
+  {name:'Cinder Bat',emoji:'🦇',hp:42,atk:12,xp:55,coins:20,tint:'#e36b56',type:'Fire'},
+  {name:'Lava Turtle',emoji:'🐢',hp:58,atk:13,xp:66,coins:24,tint:'#c85c43',type:'Lava'},
+  {name:'Ember Fox',emoji:'🦊',hp:46,atk:14,xp:63,coins:23,tint:'#ff8b43',type:'Fire'},
+  {name:'Scorching Scorpion',emoji:'🦂',hp:52,atk:15,xp:70,coins:26,tint:'#d95d3d',type:'Fire'},
+  {name:'Lava Blob',emoji:'🟠',hp:56,atk:14,xp:68,coins:25,tint:'#ff552e',type:'Lava'},
+  {name:'Volcanic Drake',emoji:'🐲',hp:64,atk:17,xp:80,coins:30,tint:'#ef4f36',type:'Dragon'}
+ ]
+};
+const SPECIAL_COST=650;
+const MAX_LEVEL=25;
+function levelCap(){return MAX_LEVEL} // The trainer's level cap is always 25, even for admins; only explicitly admin-spawned enemies can exceed it.
+const MAX_ADMIN_SPAWN_LEVEL=1000000;
+const SAVE_KEY='fandomNexusPetArenaCombinedV1';
+const $=id=>document.getElementById(id);
+const canvas=$('worldMap'),ctx=canvas.getContext('2d');
+const TILE=32,VIEW=20,CHUNK=167;
+let state={stamina:100,cheats:{stamina:false,speed:false,god:false,onehit:false},petKey:'fox',owned:['fox'],special:false,admin:false,level:1,xp:0,coins:0,wins:0,zoneKey:'meadow',rareShards:0,x:3,y:9,monsters:[],log:[],battle:null,playerHp:null,inCave:false,caveSeed:0,returnPoint:null,surfaceMonsters:[],steps:0,clock:8,taken:{},spawnedChests:[],streak:0,bossAt:{},bestiary:[],diamonds:0,avatar:{skin:0,hair:0,shirt:0,pants:0,hat:1,acc:0},unlocked:[]};
+let nextMonsterId=1,toastTimer=null,lastFrame=0,heldKeys=new Set(),heldPad={x:0,y:0},stick={x:0,y:0,active:false,pointerId:null},introTimer=null,specialCooldown=0,cutsceneTimer=null;
+const CUSTOM_ART={"👺":{"pal": {"K": "#10230f", "g": "#4fae3f", "G": "#2f7a2d", "l": "#8ee06f", "e": "#ff3b30", "w": "#ffffff", "b": "#8a5a2b", "B": "#4a2a10", "y": "#ffd23f"}, "rows": ["...K..y..y..K...", "..KgK.yyyy.KgK..", ".KggKKggggKKggK.", ".KgggKeggeKgggK.", ".KgggKwggwKgggK.", "..KKKKggggKKKK..", ".KgllggggggllgK.", "KgggKgGggGgKgggK", "KggKKgGggGgKKggK", "KlgKKggGGggKKglK", "KGGKKggGGggKKGGK", ".KKKKbbbbbbKKKK.", "....KbBbbBbK....", "....KggKKggK....", "....KgGKKGgK....", "..KKKKKKKKKKKK.."]},"🌑": {"pal": {"K": "#120d24", "p": "#4b3a8c", "l": "#8a73e0", "d": "#2a1f4d", "e": "#4de3ff", "E": "#eafcff", "w": "#b9a8ff", "n": "#ff6ec7", "m": "#6a55c4"}, "rows": ["..K..........K..", "..KpK......KpK..", ".KpplK....KlppK.", ".KpdlpK..KpldpK.", ".KppppKKKKppppK.", ".KpppppKKpppppK.", "KpppeEppppEepppK", "KppppdppppdppppK", ".KpppwwwwwwpppK.", "..KpwwwnnwwwpK..", "..KpwwKKKKwwpK..", "..KKppppppppKK..", ".KpppdKKKKdpppK.", "KppmpppKKpppmppK", ".KKpddddddddpKK.", "..pK.p.KK.p.Kp.."]}, "🔥": {"pal": {"K": "#3a0b0b", "r": "#e0382a", "R": "#a3201c", "o": "#ff8a1f", "y": "#ffd23f", "Y": "#fff3a0", "W": "#ffffff", "h": "#5a1a14"}, "rows": [".......yy.......", "......yyyy......", "..K..ooyyoo..K..", "..KR.ooyyoo.RK..", "..KRKoYYYYoKRK..", "...KKKKKKKKKK...", "..KKKrrrrrrKKK..", ".KrrWKrrrrKWrrK.", ".KrrrrrRRrrrrrK.", ".KrKWWWWWWWWKrK.", ".KrrKKKKKKKKrrK.", "..KrrrrRRrrrrK..", "..KrrooRRoorrK..", ".KrrooyYYyoorrK.", ".KrrooyYYyoorrK.", "..KKKKKKKKKKKK.."]}};
+const PET_ART={"🐉":{"pal":{"K":"#26304f","g":"#38b96b","G":"#16824d","l":"#8cf0a0","y":"#ffd166","e":"#fff3b0","b":"#a65c3b"},"rows":["....K..y..yK....","...KgK.yy.KgK...","..KgggKKKKgggK..",".KgggllggllgggK.","KgggggGggGgggggK","KgggKKggggKKgggK",".KggggggggggggK.","..KggggGGggggK..","...KggggggggK...","....KGGGGGGK....","....KggggggK....","...KggK..KggK...","...KGGK..KGGK...","..KggK....KggK..","..KGGK....KGGK..","...KKK....KKK..."]},"🦊":{"pal":{"K":"#552d20","o":"#f28b35","O":"#bd552b","w":"#fff0d2","e":"#2a2030","b":"#8d4328"},"rows":["...K......K.....","..KOK....KOK....",".KOOOK..KOOOK...","KOOOOWKKWOOOOOK.",".KOOOOWeeWOOOK..","..KOOOOOOOOOK...","...KOOOOOOK.....","...KOOOOWOK.....","....KOOOOOK.....","...KOOOOOOOK....","..KOOOK.KOOOK...","..KOOOK.KOOOK...","..KOOOK.KOOOK...","..KOOOK.KOOOK...","..KOOOK.KOOOK...","...KKK...KKK...."]},"🟢":{"pal":{"K":"#245b48","g":"#69e5a1","G":"#36b97a","l":"#c0ffcf","e":"#193d3a"},"rows":["................","................",".....KKKKK......","...KKgggggKK....","..KgggggggggK...",".KgglgggglgggK..",".KgggggggggggK..","KgggggggggggggK.","KgggggggggggggK.","KgggggggggggggK.",".KgggggggggggK..","..KGGGGGGGGGK...","...KGGK.KGGK....","...KKK...KKK....","................","................"]},"🦉":{"pal":{"K":"#4c355e","p":"#a887c7","P":"#75529b","w":"#f6e9ff","y":"#ffd166","e":"#30213c","o":"#f59c42"},"rows":["....K......K....","...KpK....KpK...","..KpppK..KpppK..",".KpppppKKpppppK.","KPPppppppppppPPK","KPPpwwppppwwpPPK",".KPPppeeppppePPK","..KPPppooooPPK..","...KPPppppPPK...","....KPPPPPPK....",".....KPPPPK.....",".....KPPPPK.....","....KPP..PPK....","....Kyy..yyK....","....KK....KK....","................"]},"🐺":{"pal":{"K":"#30394d","g":"#8d9bb2","G":"#59677e","w":"#f3f6ff","e":"#17202e","b":"#414b60"},"rows":["K...............","KK..............","KggK............",".KgggK..........","..KgggKKKKK.....","...KgggggggKKK..","..KgggwwggggggK.",".KgggweeggggggK.","KgggggggggggggK.","KggggggggggggK..",".KggggGGGgggK...","..KGGK.KGGK.....","..KGGK.KGGK.....","..KGGK.KGGK.....","..KGGK.KGGK.....","...KKK...KKK...."]},"🦄":{"pal":{"K":"#59446f","w":"#fff3ff","p":"#f5a8df","P":"#c77bd6","y":"#ffd166","e":"#40314d","b":"#eaa2cf"},"rows":["...........y....","..........yK....",".........KwwK...","....K...KwwwwK..","...KpK.KwwwwwwK.","..KpppKKwwweewK.",".KpppppwwwwwwwwK","KwwwwwwwwwwwwwK.",".KwwwwwwwwwwwwK.","..KwwwwwwwwwwK..","...KwwwwwwwwK...","....KwwwwwwK....","...KwwK..KwwK...","...KwwK..KwwK...","...KPPK..KPPK...","....KK....KK...."]},"👺":{"pal":{"K":"#243b22","g":"#58bd49","G":"#2f7d2d","l":"#a2ef75","e":"#ff4338","w":"#ffffff","b":"#8a5a2b","B":"#4a2a10","y":"#ffd23f"},"rows":["...K..y..y..K...","..KgK.yyyy.KgK..",".KggKKggggKKggK.",".KgggKeggeKgggK.",".KgggKwggwKgggK.","..KKKKggggKKKK..",".KgllggggggllgK.","KgggKgGggGgKgggK","KggKKgGggGgKKggK","KlgKKggGGggKKglK","KGGKKggGGggKKGGK",".KKKKbbbbbbKKKK.","....KbBbbBbK....","...KggKKggK.....","...KgGKKGgK.....","...KKKKKKKK....."]}};
+const spriteCache={},spriteCanvases={};
+function pixelSprite(emoji,res){
+ const key=emoji+'|'+res;if(spriteCache[key])return spriteCache[key];
+ const isRegularPet=Object.values(PETS).some(p=>p.emoji===emoji)&&emoji!=='👺';
+ const art=isRegularPet?null:(PET_ART[emoji]||CUSTOM_ART[emoji]);
+ if(art){
+  const cc=document.createElement('canvas');cc.width=cc.height=16;const cx2=cc.getContext('2d');
+  art.rows.forEach((row,y)=>{for(let x=0;x<16;x++){const ch=row[x],col=art.pal[ch];if(col){cx2.fillStyle=col;cx2.fillRect(x,y,1,1)}}});
+  spriteCanvases[key]=cc;return spriteCache[key]=cc.toDataURL();
+ }
+ const c=document.createElement('canvas');c.width=c.height=res;
+ const x=c.getContext('2d',{willReadFrequently:true});x.imageSmoothingEnabled=false;
+ x.textAlign='center';x.textBaseline='middle';
+ x.font=Math.floor(res*.78)+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+ x.fillText(emoji,res/2,res/2+res*.04);
+ try{
+  const img=x.getImageData(0,0,res,res),d=img.data;
+  for(let i=0;i<d.length;i+=4){
+   if(d[i+3]<110){d[i+3]=0;continue}
+   d[i+3]=255;
+   for(let k=0;k<3;k++)d[i+k]=Math.min(255,Math.round(d[i+k]/48)*48);
+  }
+  x.putImageData(img,0,0);
+ }catch(e){}
+ spriteCanvases[key]=c;return spriteCache[key]=c.toDataURL();
+}
+function setSprite(el,emoji,res){
+ if(!el)return;
+ let img=el.querySelector('img');
+ if(!img){img=document.createElement('img');img.alt='';img.draggable=false;el.textContent='';el.appendChild(img)}
+ const k=emoji+'|'+res;
+ if(img.dataset.k!==k){img.src=pixelSprite(emoji,res);img.dataset.k=k}
+}
+function zone(){return ZONES[state.zoneKey]||ZONES.meadow}
+function pet(){return PETS[state.petKey]||PETS.fox}
+function hasPet(k){return state.admin||state.owned.includes(k)}
+function hasSpecial(){return state.admin||state.special}
+function maxHp(){return pet().hp+Math.max(0,state.level-1)*5}
+function attackPower(){return pet().atk+Math.floor(Math.max(0,state.level-1)*1.5)}
+function xpNeeded(){return 100+(state.level-1)*35}
+function evolutionName(){return state.level>=15?'Ascended':state.level>=5?'Evolved':'Young'}
+function hash(x,y,seed){let n=Math.imul(x|0,374761393)+Math.imul(y|0,668265263)+Math.imul(seed|0,1442695041);n=Math.imul(n^(n>>>13),1274126177);n^=n>>>16;return(n>>>0)/4294967295}
+function showToast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.style.display='none',2600)}
+function addLog(msg){state.log.push(msg);if(state.log.length>60)state.log.shift();renderLog();if(state.battle&&$('battleCutscene').classList.contains('show'))showCutsceneMessage(msg)}
+const MINECRAFT_DAY_SECONDS=20*60; // A full 24-hour in-game cycle takes 20 real minutes.
+let lastClockDisplay='';
+function advanceTime(){
+ if(!state.admin)return showToast('🔒 Only admins can skip time.');
+ const wasNight=isNight();state.clock=(state.clock+2)%24;updateTime();drawMap(performance.now());
+ if(wasNight!==isNight())addLog(isNight()?'🌙 Night settles over the world.':'🌅 Sunrise brightens the world.');
+ else addLog('⏩ Time skipped ahead to '+formatGameTime()+'.');
+ saveLocal();
+}
+function formatGameTime(){const minutes=Math.floor((state.clock%24)*60+1e-6),h=Math.floor(minutes/60),m=minutes%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')}
+function updateTime(){
+ const t=state.clock%24,h=Math.floor(t),m=Math.floor((t-h)*60+1e-6),label=(t>=6&&t<18?'☀️ ':'🌙 ')+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+ if(label!==lastClockDisplay){$('timeLabel').textContent=label;lastClockDisplay=label}
+ const marker=$('worldClockMarker');if(marker){marker.style.left=(t/24*100)+'%';marker.textContent=(t>=6&&t<18)?(t<7||t>=17?'🌅':'☀️'):'🌙';marker.style.borderColor=(t>=6&&t<18)?'#ffe49a':'#b9c8ff'}
+ document.body.classList.toggle('day',t>=6&&t<18);
+}
+function tickWorldClock(dt){state.clock=(state.clock+dt*24/MINECRAFT_DAY_SECONDS)%24;updateTime()}
+function nightLevel(){
+ const t=state.clock%24;
+ // Smoothly fade from daylight to darkness between 18:00–20:00 and 04:00–06:00.
+ if(t>=6&&t<17)return 0;
+ if(t>=17&&t<20)return (t-17)/3*.46;
+ if(t>=20||t<4)return .46;
+ return (6-t)/2*.46;
+}
+function isNight(){return state.clock<6||state.clock>=18}
+function tileType(x,y){
+ if(state.inCave){const h=hash(x,y,state.caveSeed);if(x===0&&y===2)return'exit';if(h>.985)return'crystal';if(h>.965)return'water';if(h>.925)return'rock';return'floor'}
+ if(x===0&&y===2)return'entrance';
+ const h=hash(x,y,zone().seed);
+ if(state.zoneKey==='volcano'){if(h>.985)return'lava';if(h>.955)return'rock';if(h>.91)return'ash';return'ground'}
+ if(state.zoneKey==='cave'){if(h>.98)return'crystal';if(h>.95)return'rock';return'ground'}
+ if(h>.985)return'tree';if(h>.965)return'rock';if(h>.94)return'tallgrass';if(h>.91)return'flower';return'ground'
+}
+function isWalkable(x,y){return !['tree','rock','water','lava','crystal'].includes(tileType(Math.round(x),Math.round(y)))}
+function drawTile(x,y,sx,sy,time){
+ const type=tileType(x,y),px=sx*TILE,py=sy*TILE,v=hash(x,y,state.inCave?state.caveSeed:zone().seed);
+ let g=zone().ground;if(state.inCave)g='#34374d';ctx.fillStyle=g;ctx.fillRect(px,py,TILE,TILE);
+ if(state.inCave){
+  if(type==='floor'){ctx.fillStyle=v>.5?'#3d4058':'#393b53';ctx.fillRect(px+2,py+2,28,28)}
+  if(type==='rock'){ctx.fillStyle='#22263b';ctx.fillRect(px+2,py+1,28,30);ctx.fillStyle='#4b4f6b';ctx.fillRect(px+7,py+7,18,14)}
+  if(type==='water'){ctx.fillStyle='#243f69';ctx.fillRect(px,py,32,32);ctx.fillStyle='#497bb0';ctx.fillRect(px+5,py+8+Math.floor(time/200)%4,17,3)}
+  if(type==='crystal'){ctx.fillStyle='#6748a7';ctx.fillRect(px+7,py+7,7,20);ctx.fillRect(px+15,py+3,8,24);ctx.fillStyle='#c5a8ff';ctx.fillRect(px+10,py+9,3,12);ctx.fillRect(px+18,py+6,3,12)}
+  if(type==='exit'){ctx.fillStyle='#39305c';ctx.fillRect(px+3,py+3,26,26);ctx.fillStyle='#8d7aff';ctx.fillRect(px+8,py+5,16,22);ctx.fillStyle='#fff1ac';ctx.fillRect(px+14,py+11,4,9)}
+  return;
+ }
+ ctx.fillStyle=zone().ground;ctx.fillRect(px,py,32,32);
+ if(type==='ground'||type==='ash'){ctx.fillStyle=v>.5?'#79b76a':'#68a85f';if(state.zoneKey==='volcano')ctx.fillStyle=v>.5?'#9a5a46':'#854b3e';if(state.zoneKey==='cave')ctx.fillStyle=v>.5?'#646079':'#55536d';ctx.fillRect(px+4,py+6,5,3);ctx.fillRect(px+18,py+19,4,4)}
+ if(type==='tallgrass'){ctx.fillStyle='#397a47';ctx.fillRect(px+3,py+7,7,19);ctx.fillRect(px+13,py+3,6,25);ctx.fillRect(px+21,py+10,7,16)}
+ if(type==='tree'){ctx.fillStyle='#654431';ctx.fillRect(px+13,py+16,8,14);ctx.fillStyle='#22583d';ctx.fillRect(px+4,py+4,24,21);ctx.fillStyle='#34784d';ctx.fillRect(px+7,py+1,17,14)}
+ if(type==='rock'||type==='crystal'){ctx.fillStyle=type==='crystal'?'#6748a7':'#62676c';ctx.fillRect(px+5,py+8,22,19);ctx.fillStyle=type==='crystal'?'#c5a8ff':'#90989d';ctx.fillRect(px+9,py+7,11,4)}
+ if(type==='flower'){ctx.fillStyle='#367447';ctx.fillRect(px+15,py+14,3,14);ctx.fillStyle='#ff86c8';ctx.fillRect(px+8,py+7,7,7);ctx.fillRect(px+18,py+7,7,7);ctx.fillRect(px+13,py+3,7,7);ctx.fillStyle='#ffdf84';ctx.fillRect(px+14,py+9,6,6)}
+ if(type==='entrance'){ctx.fillStyle='#252b31';ctx.fillRect(px+3,py+7,26,23);ctx.fillStyle='#704f38';ctx.fillRect(px+1,py+17,30,13);ctx.fillStyle='#4a382e';ctx.fillRect(px+7,py+9,18,21);ctx.fillStyle='#8d73dc';ctx.fillRect(px+10,py+13,12,15);ctx.fillStyle='#d3c0ff';ctx.fillRect(px+14,py+14,4,9)}
+ if(type==='lava'){ctx.fillStyle='#bb482d';ctx.fillRect(px,py,32,32);ctx.fillStyle='#ffad43';ctx.fillRect(px+4,py+7,13,5);ctx.fillRect(px+17,py+20,11,5)}
+  const darkness=nightLevel();if(darkness>0&&!state.inCave){ctx.fillStyle='rgba(8,12,30,'+darkness.toFixed(3)+')';ctx.fillRect(px,py,32,32)}
+}
+const anim={t:0,moving:false,face:1};
+const pf={x:null,y:0,face:1,moving:false,ph:0};
+function updateFollower(dt){
+ const tx=state.x-anim.face*1.1,ty=state.y+.15,ok=isWalkable(tx,ty),gx=ok?tx:state.x,gy=ok?ty:state.y;
+ if(pf.x===null){pf.x=gx;pf.y=gy}
+ const dx=gx-pf.x,dy=gy-pf.y,d=Math.hypot(dx,dy);
+ if(d>6){pf.x=gx;pf.y=gy;pf.moving=false;return}
+ pf.moving=d>.12;if(!pf.moving)return;
+ const step=Math.min(d,pet().speed*dt),nx=pf.x+dx/d*step,ny=pf.y+dy/d*step;
+ if(isWalkable(nx,ny)){pf.x=nx;pf.y=ny}else if(isWalkable(nx,pf.y))pf.x=nx;else if(isWalkable(pf.x,ny))pf.y=ny;else if(d>2.5){pf.x=state.x;pf.y=state.y}
+ if(Math.abs(dx)>.05)pf.face=dx>0?1:-1;pf.ph+=dt*13;
+}
+function drawPet(cx,cy,time){
+ if(pf.x===null)return;const sx=pf.x-cx,sy=pf.y-cy;if(sx<-1||sy<-1||sx>VIEW||sy>VIEW)return;
+ const emo=pet().emoji;pixelSprite(emo,20);const c=spriteCanvases[emo+'|20'];if(!c)return;
+ const px=sx*TILE,py=sy*TILE,hop=pf.moving?-Math.abs(Math.sin(pf.ph))*6:Math.sin(time/380)*1.2;
+ ctx.fillStyle='#0006';ctx.beginPath();ctx.ellipse(px+16,py+29,Math.max(4,10+hop*.4),3.5,0,0,7);ctx.fill();
+ ctx.save();ctx.translate(px+16,0);ctx.scale(pf.face,1);ctx.imageSmoothingEnabled=false;ctx.drawImage(c,-14,py+3+hop,28,28);ctx.restore();
+ ctx.save();ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.lineWidth=2;ctx.strokeStyle='#000a';ctx.strokeText(pet().name,px+16,py+1+hop);ctx.fillStyle='#fff';ctx.fillText(pet().name,px+16,py+1+hop);ctx.restore();
+}
+function drawTrainer(sx,sy){
+ const px=sx*TILE,py=sy*TILE,m=anim.moving,w=m?Math.sin(anim.t):0,bob=m?Math.abs(Math.cos(anim.t))*2:0,lift=a=>Math.max(0,a)*3;
+ ctx.fillStyle='#0005';ctx.fillRect(px+5,py+27,22,4);
+ ctx.save();ctx.translate(px+16,py);ctx.scale(anim.face,1);ctx.translate(-16,0);
+ paintTrainer(ctx,w,bob,avLook());
+ ctx.restore();
+ if(chat.bubble&&Date.now()<chat.bubble.until){
+  let t=chat.bubble.text;if(t.length>34)t=t.slice(0,33)+'…';
+  ctx.font='bold 10px system-ui';ctx.textAlign='center';const bw=Math.min(190,ctx.measureText(t).width+14),bx=px+16-bw/2,by=py-20;
+  ctx.fillStyle='#5a3fb5f2';ctx.beginPath();if(ctx.roundRect)ctx.roundRect(bx,by,bw,16,6);else ctx.rect(bx,by,bw,16);ctx.fill();
+  ctx.beginPath();ctx.moveTo(px+12,by+16);ctx.lineTo(px+16,by+21);ctx.lineTo(px+20,by+16);ctx.fill();
+  ctx.fillStyle='#fff';ctx.fillText(t,px+16,by+11.5);
+ }
+}
+const CHEST_STEP_INTERVAL=250;
+const CHEST_SPAWN_CHANCE=0.025;
+function chestKey(x,y){return(state.inCave?'c'+state.caveSeed:state.zoneKey)+':'+x+','+y}
+function chestAt(x,y){
+ if(!['ground','floor','ash','flower','tallgrass'].includes(tileType(x,y)))return false;
+ const key=chestKey(x,y);
+ return !state.taken[key] && Array.isArray(state.spawnedChests) && state.spawnedChests.some(chest=>chest.key===key);
+}
+function spawnChestNearPlayer(){
+ if(!Array.isArray(state.spawnedChests))state.spawnedChests=[];
+ const px=Math.round(state.x),py=Math.round(state.y);
+ // Put a successful roll on a reachable nearby tile, away from the trainer and monsters.
+ for(let attempt=0;attempt<120;attempt++){
+  const dx=Math.floor(Math.random()*15)-7,dy=Math.floor(Math.random()*15)-7;
+  const distance=Math.abs(dx)+Math.abs(dy);
+  if(distance<3||distance>10)continue;
+  const x=px+dx,y=py+dy,type=tileType(x,y),key=chestKey(x,y);
+  if(!['ground','floor','ash','flower','tallgrass'].includes(type)||!isWalkable(x,y))continue;
+  if(state.taken[key]||state.spawnedChests.some(chest=>chest.key===key))continue;
+  if(state.monsters.some(monster=>Math.round(monster.x)===x&&Math.round(monster.y)===y))continue;
+  state.spawnedChests.push({key,x,y});
+  showToast('📦 A treasure chest has appeared nearby!');
+  addLog('📦 You spotted a new treasure chest nearby.');
+  saveLocal();
+  return true;
+ }
+ return false;
+}
+function checkChestSpawnMilestone(){
+ if(state.steps>0 && state.steps%CHEST_STEP_INTERVAL===0 && Math.random()<CHEST_SPAWN_CHANCE){
+  if(!spawnChestNearPlayer())addLog('📦 A chest almost appeared, but there was no safe place nearby.');
+ }
+}
+function drawChest(sx,sy,t){
+ const px=sx*TILE,py=sy*TILE,s=Math.sin(t/300+sx)*1.5;
+ ctx.fillStyle='#0005';ctx.fillRect(px+6,py+26,20,4);
+ ctx.fillStyle='#8a5a2b';ctx.fillRect(px+6,py+14,20,13);ctx.fillStyle='#b9803f';ctx.fillRect(px+6,py+10,20,6);
+ ctx.fillStyle='#ffd166';ctx.fillRect(px+14,py+16,4,5);ctx.fillRect(px+6,py+14,20,2);
+ ctx.fillStyle='#fff8c8';ctx.fillRect(px+22,py+5+s,3,3);ctx.fillRect(px+8,py+3-s,2,2);
+}
+function collectChest(x,y){
+ if(state.battle||!chestAt(x,y))return;
+ state.taken[chestKey(x,y)]=1;
+ const roll=Math.random(),coins=10+Math.floor(Math.random()*21)+(state.zoneKey==='volcano'?15:state.zoneKey==='cave'?8:0);
+ state.coins+=coins;let msg='📦 Treasure chest! +'+coins+' coins';
+ if(roll<.12){state.rareShards++;msg+=' and a 💎 rare shard!'}
+ else if(roll<.2){state.playerHp=maxHp();msg+=' and a healing potion!'}
+ showToast(msg);addLog(msg);
+}
+function drawMonster(m,cx,cy,time=0){
+ const sx=m.x-cx,sy=m.y-cy;if(sx<0||sy<0||sx>=VIEW||sy>=VIEW)return;
+ const px=sx*TILE,py=sy*TILE;
+ pixelSprite(m.emoji,20);const c=spriteCanvases[m.emoji+'|20'];
+ ctx.fillStyle=m.tint+'66';ctx.beginPath();ctx.ellipse(px+16,py+27,13,5,0,0,7);ctx.fill();
+ ctx.fillStyle='#0006';ctx.beginPath();ctx.ellipse(px+16,py+28,9,3,0,0,7);ctx.fill();
+ const bob=Math.round(Math.sin(time/260+m.x*1.7)*1.5);
+ ctx.imageSmoothingEnabled=false;
+ if(m.boss){ctx.fillStyle='#ffd16655';ctx.beginPath();ctx.ellipse(px+16,py+27,20+Math.sin(time/200)*2,8,0,0,7);ctx.fill()}
+ const sz=m.boss?46:30;if(c)ctx.drawImage(c,px+16-sz/2,py+28-sz+bob,sz,sz);
+ if(m.boss){ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('👑',px+16,py-14+bob)}
+ ctx.fillStyle='#000a';ctx.fillRect(px+4,py+29,24,3);
+ ctx.fillStyle=m.tint;ctx.fillRect(px+4,py+29,Math.max(1,24*m.hp/m.maxHp),3);
+}
+function drawMap(time=0){
+ const r=canvas.getBoundingClientRect();if(!r.width)return;
+ const dpr=Math.min(devicePixelRatio||1,2),size=Math.floor(r.width*dpr);
+ if(canvas.width!==size||canvas.height!==size){canvas.width=size;canvas.height=size}
+ ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,size,size);ctx.scale(size/(VIEW*TILE),size/(VIEW*TILE));
+ const cx=Math.floor(state.x)-9,cy=Math.floor(state.y)-9;
+ for(let sy=0;sy<VIEW;sy++)for(let sx=0;sx<VIEW;sx++)drawTile(cx+sx,cy+sy,sx,sy,time);
+ for(let sy=0;sy<VIEW;sy++)for(let sx=0;sx<VIEW;sx++)if(chestAt(cx+sx,cy+sy))drawChest(sx,sy,time);
+ state.monsters.forEach(m=>drawMonster(m,cx,cy,time));const behind=pf.y<state.y;if(behind)drawPet(cx,cy,time);drawTrainer(state.x-cx,state.y-cy);if(!behind)drawPet(cx,cy,time);
+ ctx.strokeStyle='#ffffff25';ctx.strokeRect(0,0,VIEW*TILE,VIEW*TILE);
+ ctx.fillStyle='#fff';ctx.font='bold 11px system-ui';ctx.textAlign='left';ctx.fillText(state.inCave?'UNDERGROUND':zone().name.toUpperCase(),8,15);
+}
+function makeMonster(x,y){const m=makeMonsterBase(x,y);if(hash(x,y,(state.inCave?state.caveSeed:zone().seed)+4242)>.94){m.shiny=true;m.name='✨ '+m.name;m.maxHp=Math.round(m.maxHp*1.4);m.hp=m.maxHp;m.xpReward*=2;m.coinReward*=2;m.atk+=2}return m}
+const MOB_STRENGTH_MULTIPLIER=1.15; // Non-boss mobs have 15% more health and attack.
+// Regular mobs roll a level based on their biome and the trainer's progress.
+// Levels always stay in the 1–25 range; late-game players can meet higher-level mobs in every biome.
+function monsterLevelBounds(sourceZone=state.zoneKey,inCave=state.inCave){
+ const min=inCave?5:(sourceZone==='volcano'?11:sourceZone==='cave'?5:1);
+ const playerLevel=Math.max(1,Math.min(MAX_LEVEL,Number(state.level)||1));
+ const max=Math.min(MAX_LEVEL,Math.max(min,playerLevel+3));
+ return{min:Math.min(MAX_LEVEL,min),max:Math.max(Math.min(MAX_LEVEL,min),max)};
+}
+function pickMonsterLevel(sourceZone=state.zoneKey,roll=Math.random(),inCave=false){
+ const b=monsterLevelBounds(sourceZone,inCave);
+ return b.min+Math.floor(Math.max(0,Math.min(0.999999,roll))*(b.max-b.min+1));
+}
+function makeMonsterBase(x,y){
+ const seed=state.inCave?state.caveSeed:zone().seed;
+ const pool=state.inCave?MONSTERS.cave:(state.zoneKey==='volcano'?MONSTERS.volcano:state.zoneKey==='cave'?MONSTERS.cave:MONSTERS.meadow);
+ const base=pool[Math.floor(hash(x,y,seed+191)*pool.length)];
+ const bounds=monsterLevelBounds(state.zoneKey,state.inCave);
+ const level=bounds.min+Math.floor(hash(x,y,seed+719)*(bounds.max-bounds.min+1));
+ const hp=Math.round((base.hp+(level-1)*7)*MOB_STRENGTH_MULTIPLIER);
+ const atk=Math.round((base.atk+level-1)*MOB_STRENGTH_MULTIPLIER);
+ return{id:'m'+nextMonsterId++,x,y,name:base.name,emoji:base.emoji,tint:base.tint,type:base.type,level,maxHp:hp,hp,atk,xpReward:base.xp+(level-1)*8,coinReward:base.coins+(level-1)*3,color:['#e78c9b','#e9ba67','#a995eb','#77cbb1'][Math.floor(hash(x,y,seed+88)*4)]};
+}
+function nearPlayer(x,y,d=8){return Math.abs(x-state.x)<=d&&Math.abs(y-state.y)<=d}
+function ensureNearbyMonsters(){
+ state.monsters=state.monsters.filter(m=>nearPlayer(m.x,m.y,12));
+ const occupied=new Set(state.monsters.map(m=>m.x+','+m.y)),px=Math.round(state.x),py=Math.round(state.y);
+ for(let y=py-9;y<=py+9;y++)for(let x=px-9;x<=px+9;x++){
+  if(Math.abs(x-px)+Math.abs(y-py)<3||!isWalkable(x,y)||tileType(x,y)==='entrance')continue;
+  const key=x+','+y;if(occupied.has(key))continue;
+  if(hash(x,y,(state.inCave?state.caveSeed:zone().seed)+515)>.976){state.monsters.push(makeMonster(x,y));occupied.add(key)}
+ }
+ if(!state.monsters.length){let x=px+3,y=py+1;if(!isWalkable(x,y)){x=px-3;y=py}if(isWalkable(x,y))state.monsters.push(makeMonster(x,y))}
+ bossLair();
+}
+function getNearbyMonsters(){return state.monsters.map(monster=>({monster,distance:Math.abs(monster.x-state.x)+Math.abs(monster.y-state.y)})).sort((a,b)=>a.distance-b.distance)}
+function nearestMonster(){return getNearbyMonsters().find(i=>i.distance<=1)||null}
+function nearestSpecialTile(){
+ const px=Math.round(state.x),py=Math.round(state.y);
+ for(let y=py-1;y<=py+1;y++)for(let x=px-1;x<=px+1;x++){
+  if(Math.abs(x-px)+Math.abs(y-py)>1)continue;
+  const t=tileType(x,y);if(t==='entrance')return{kind:'entrance',x,y};if(state.inCave&&t==='exit')return{kind:'exit',x,y}
+ }return null;
+}
+function updatePosition(nx,ny){
+ if(!isWalkable(nx,ny))return false;
+ const ox=Math.round(state.x),oy=Math.round(state.y);state.x=nx;state.y=ny;
+ if(ox!==Math.round(nx)||oy!==Math.round(ny)){
+  state.steps++;
+  checkChestSpawnMilestone();
+  collectChest(Math.round(nx),Math.round(ny));const special=nearestSpecialTile();
+  if(special?.kind==='entrance')showToast('🕳️ Cave entrance nearby! Press Interact.');
+  if(special?.kind==='exit')showToast('✨ Portal nearby! Press Interact.');
+  ensureNearbyMonsters();renderAll();if(state.steps%5===0)saveLocal();
+ }return true;
+}
+function movePlayer(dx,dy){
+ if(state.battle){showToast('Finish your battle first!');return}
+ const len=Math.hypot(dx,dy)||1;if(!updatePosition(state.x+dx/len,state.y+dy/len))showToast('That way is blocked!');
+}
+function interactNearby(){
+ if(state.battle)return showToast('Finish your battle first!');
+ const s=nearestSpecialTile();if(s?.kind==='entrance')return enterCave(s);if(s?.kind==='exit')return exitCave();
+ const close=nearestMonster();if(close)return startBattle(close.monster.id);
+ showToast('Nothing close enough. Keep exploring!');
+}
+function enterCave(p){
+ if(state.inCave||!p||state.battle)return;
+ state.returnPoint={zoneKey:state.zoneKey,x:state.x,y:state.y};state.surfaceMonsters=state.monsters;
+ state.inCave=true;state.caveSeed=Math.floor(hash(p.x,p.y,zone().seed+9000)*90000000)+1000;
+ state.x=0;state.y=0;state.monsters=[];ensureNearbyMonsters();renderAll();saveLocal();addLog('🕳️ You entered a hidden cave.');
+}
+function exitCave(){
+ if(!state.inCave)return showToast('You are not inside a cave.');
+ if(state.battle)return showToast('Finish your battle first.');
+ const p=state.returnPoint;state.inCave=false;state.caveSeed=0;state.returnPoint=null;
+ state.x=p?p.x:0;state.y=p?p.y:0;if(p&&ZONES[p.zoneKey])state.zoneKey=p.zoneKey;
+ state.monsters=state.surfaceMonsters||[];state.surfaceMonsters=[];ensureNearbyMonsters();renderAll();saveLocal();addLog('🌤️ You returned to the surface.');
+}
+function changeZone(key){
+ if(state.battle)return showToast('Finish your battle first.');
+ if(state.inCave)return showToast('Leave the cave first.');
+ const next=ZONES[key];if(!next)return;
+ if(state.wins<next.unlock)return showToast('You need '+next.unlock+' wins to unlock '+next.name+'.');
+ state.zoneKey=key;state.x=0;state.y=0;state.monsters=[];ensureNearbyMonsters();renderAll();saveLocal();addLog('🗺️ You travelled to '+next.name+'.');
+}
+
+/* BATTLE INTRO AND ANIMATIONS */
+function startBattle(id){
+ const m=state.monsters.find(x=>x.id===id);if(!m||state.battle)return;
+ if(!Array.isArray(state.bestiary))state.bestiary=[];if(!state.bestiary.includes(m.name.replace(/^✨ /,''))){state.bestiary.push(m.name.replace(/^✨ /,''));saveLocal();}
+ if(Math.abs(m.x-state.x)+Math.abs(m.y-state.y)>2)return showToast('Move closer first!');
+ if(state.playerHp===null||state.playerHp<=0)state.playerHp=maxHp();
+ state.battle={monsterId:m.id,monsterHp:m.hp,monsterMaxHp:m.maxHp,playerHp:state.playerHp,playerMaxHp:maxHp(),turn:0};
+ $('battlePanel').style.display='block';setSprite($('introPet'),pet().emoji,20);setSprite($('introMonster'),m.emoji,20);
+ $('introTitle').textContent=(m.boss?'👑 BOSS: ':'A wild ')+m.name+'!';$('introText').textContent=pet().name+' is ready for battle.';
+ $('battleIntro').classList.add('show');clearTimeout(introTimer);introTimer=setTimeout(finishIntro,2400);
+ addLog('⚔️ A wild '+m.name+' appeared!');renderAll();updateBattleUI();
+}
+function hideIntro(){$('battleIntro').classList.remove('show');clearTimeout(introTimer);introTimer=null}
+function finishIntro(){hideIntro();if(state.battle)showBattleCutscene()}
+function currentBattleMonster(){return state.battle?state.monsters.find(m=>m.id===state.battle.monsterId)||null:null}
+function animateSide(id,kind){
+ kind=kind.replace('fighter-','');
+ const el=$(id);
+ if(el){
+  el.classList.remove('fighter-attack','fighter-hit','fighter-special','fighter-heal');
+  void el.offsetWidth;el.classList.add('fighter-'+kind);
+  setTimeout(()=>el.classList.remove('fighter-'+kind),850);
+ }
+ if(id==='playerBattleSide')animateCutsceneFighter('player',kind);
+ if(id==='monsterBattleSide')animateCutsceneFighter('enemy',kind);
+ if(kind==='attack')cutsceneFlash(false);
+ if(kind==='special')cutsceneFlash(true);
+}
+function showCutsceneMessage(text){$('closeBattleMessage').textContent=text}
+function updateCutsceneUI(){
+ if(!state.battle)return;
+ const b=state.battle,m=currentBattleMonster();
+ setSprite($('closePlayerSprite'),pet().emoji,24);
+ $('closePlayerName').textContent=pet().name;
+ $('closePlayerLevel').textContent='Lv. '+state.level;
+ $('closePlayerHp').textContent=b.playerHp+' / '+b.playerMaxHp+' HP';
+ $('closePlayerBar').style.width=Math.max(0,b.playerHp/b.playerMaxHp*100)+'%';
+ if(m){
+  setSprite($('closeEnemySprite'),m.emoji,24);
+  $('closeEnemySprite').classList.toggle('boss',!!m.boss);$('closeEnemyName').textContent=(m.boss?'👑 ':'')+m.name+' · '+m.type;$('closeEnemySprite').style.setProperty('--tint',m.tint);$('closeEnemyHud').style.borderColor=m.tint;setSprite($('closeEnemyPic'),m.emoji,20);$('closeEnemyPic').style.setProperty('--tint',m.tint);document.querySelector('.cutscene-sky').style.setProperty('--tint',m.tint);
+  $('closeEnemyLevel').textContent='Lv. '+m.level;
+  $('closeEnemyHp').textContent=b.monsterHp+' / '+b.monsterMaxHp+' HP';
+  $('closeEnemyBar').style.width=Math.max(0,b.monsterHp/b.monsterMaxHp*100)+'%';
+ }
+ $('closeSpecialButton').disabled=specialCooldown>0||!hasSpecial();
+ $('closeHealButton').disabled=state.coins<5||b.playerHp>=b.playerMaxHp;
+}
+function animateCutsceneFighter(side,kind){
+ const el=$(side==='player'?'closePlayerSprite':'closeEnemySprite');
+ const play=()=>{['attack','hit','special','heal'].forEach(c=>el.classList.remove(c));void el.offsetWidth;el.classList.add(kind);setTimeout(()=>el.classList.remove(kind),800)};
+ if(kind==='hit')setTimeout(play,170);else play();
+}
+function popDamage(side,val,big){
+ setTimeout(()=>{
+  const sky=document.querySelector('.cutscene-sky');if(!sky||!$('battleCutscene').classList.contains('show'))return;
+  const t=$(side==='enemy'?'closeEnemySprite':'closePlayerSprite').getBoundingClientRect(),r=sky.getBoundingClientRect(),x=(t.left-r.left+t.width/2)+'px',y=(t.top-r.top+t.height*.4)+'px';
+  const fx=document.createElement('div');fx.className='fx-burst'+(big?' big':'');fx.style.left=x;fx.style.top=y;
+  const n=document.createElement('div');n.className='fx-num'+(big?' big':'')+(side==='player'?' foe':'');n.textContent=(big?'💥 ':'')+'-'+val;n.style.left=x;n.style.top=y;
+  sky.append(fx,n);setTimeout(()=>{fx.remove();n.remove()},900);
+  if(big){const f=document.querySelector('.cutscene-frame');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake')}
+ },170);
+}
+function cutsceneFlash(special){
+ const el=$('cutsceneAttackFlash');
+ el.classList.remove('flash','magic');void el.offsetWidth;
+ el.classList.add(special?'magic':'flash');
+}
+function showBattleCutscene(){
+ const m=currentBattleMonster();if(!m||!state.battle)return;
+ clearTimeout(cutsceneTimer);['closePlayerSprite','closeEnemySprite'].forEach(i=>$(i).classList.remove('faint'));
+ $('battleCutscene').classList.add('show');
+ updateCutsceneUI();
+ showCutsceneMessage((m.boss?'The boss ':'A wild ')+m.name+' appeared! Go, '+pet().name+'!');
+}
+function battleAction(action){
+ const b=state.battle;if(!b)return;
+ if(introTimer)finishIntro();
+ const m=currentBattleMonster();if(!m)return endBattle();
+ if(action==='special'&&!hasSpecial())return showToast('Buy the Special attack in the shop ('+SPECIAL_COST+' coins).');
+ if(action==='special'&&specialCooldown>0)return showToast('Special ready in '+specialCooldown+' more turn(s)!');
+ if(action==='run'&&m.boss)return showToast('You cannot escape from a boss!');
+ if(action==='run'){
+  if(state.coins<50)return showToast('You need 50 coins to attempt an escape!');
+  state.coins-=50;
+  if(Math.random()<.35){addLog('🏃✨ Escape successful!');showToast('You escaped!');return endBattle()}
+  addLog('❌ Escape failed! You spent 50 coins.');
+  animateSide('monsterBattleSide','fighter-attack');const incoming=state.cheats.god?0:Math.max(1,m.atk+Math.floor(Math.random()*4));popDamage('player',incoming,false);
+  b.playerHp=Math.max(0,b.playerHp-incoming);state.playerHp=b.playerHp;animateSide('playerBattleSide','fighter-hit');
+  addLog('💥 '+m.name+' dealt '+incoming+' damage.');
+  if(b.playerHp<=0)return defeatBattle('Your pet was knocked out while escaping.');
+  renderAll();updateBattleUI();saveLocal();return;
+ }
+ if(action==='heal'){
+  if(state.coins<5)return showToast('You need 5 coins to heal!');
+  if(b.playerHp>=b.playerMaxHp)return showToast('Your pet already has full health.');
+  state.coins-=5;b.playerHp=Math.min(b.playerMaxHp,b.playerHp+18);
+  animateSide('playerBattleSide','fighter-heal');addLog('💚 '+pet().name+' recovered health.');
+ }else if(action==='attack'){
+  let damage=state.cheats.onehit?9999:Math.max(2,attackPower()+Math.floor(Math.random()*5));const crit=Math.random()<.15&&!state.cheats.onehit;if(crit)damage=Math.floor(damage*1.8);
+  b.monsterHp=Math.max(0,b.monsterHp-damage);m.hp=b.monsterHp;
+  animateSide('playerBattleSide','fighter-attack');animateSide('monsterBattleSide','fighter-hit');popDamage('enemy',damage,crit);
+  addLog((crit?'💥 CRITICAL HIT! ':'⚔️ ')+pet().name+' dealt '+damage+' damage.');
+ }else if(action==='special'){
+  const damage=state.cheats.onehit?9999:Math.max(4,Math.floor(attackPower()*1.8+Math.random()*6));
+  b.monsterHp=Math.max(0,b.monsterHp-damage);m.hp=b.monsterHp;specialCooldown=3;
+  animateSide('playerBattleSide','fighter-special');animateSide('monsterBattleSide','fighter-special');popDamage('enemy',damage,true);
+  addLog('✨ '+pet().special+' dealt '+damage+' damage!');
+ }else return;
+ if(b.monsterHp<=0)return winBattle(m);
+ b.turn=(b.turn||0)+1;const heavy=m.boss&&b.turn%3===0;
+ const incoming=state.cheats.god?0:Math.max(1,Math.round((m.atk+Math.floor(Math.random()*4))*(heavy?1.7:1)));
+ if(heavy)addLog('💢 '+m.name+' unleashes a heavy strike!');popDamage('player',incoming,heavy);
+ b.playerHp=Math.max(0,b.playerHp-incoming);state.playerHp=b.playerHp;
+ animateSide('monsterBattleSide','fighter-attack');animateSide('playerBattleSide','fighter-hit');
+ addLog('💥 '+m.name+' dealt '+incoming+' damage.');
+ if(b.playerHp<=0)return defeatBattle('Your pet was knocked out in battle.');
+ if(specialCooldown>0&&action!=='special')specialCooldown--;
+ renderAll();updateBattleUI();saveLocal();
+}
+function defeatBattle(reason){
+ if(!state.battle)return;$('closePlayerSprite').classList.add('faint');
+ state.streak=0;const lostXp=Math.min(state.xp,Math.ceil(state.xp*.1)),lostCoins=Math.min(state.coins,10);
+ state.xp-=lostXp;state.coins-=lostCoins;const fee=Math.min(state.coins,3);state.coins-=fee;
+ state.playerHp=Math.max(1,Math.ceil(state.battle.playerMaxHp*.35));
+ addLog('😵 '+reason);addLog('📉 Defeat: -'+lostXp+' XP and -'+(lostCoins+fee)+' coins.');
+ addLog('💚 Your pet recovered with some health.');showToast('Defeat! Rest before fighting again.');endBattle();
+}
+function winBattle(m){
+ if(!state.battle)return;$('closeEnemySprite').classList.add('faint');
+ state.wins++;state.streak=(state.streak||0)+1;const sb=Math.min(30,(state.streak-1)*2);state.coins+=m.coinReward+sb;if(sb)addLog('🔥 Win streak x'+state.streak+'! +'+sb+' bonus coins.');state.xp+=m.xpReward;state.playerHp=state.battle.playerHp;
+ if(Math.random()<.18){state.rareShards++;addLog('💎 You found a rare shard!')}
+ if(Math.random()<DIAMOND_DROP){state.diamonds++;addLog('💠 INCREDIBLE! A diamond dropped!');showToast('💠 A diamond dropped! 0.0001% luck!')}
+ addLog('🏆 Victory! +'+m.xpReward+' XP, +'+m.coinReward+' coins.');botReact(m);
+ if(m.boss){if(!state.bestiary.includes(m.name))state.bestiary.push(m.name);state.bossAt[state.zoneKey]=state.wins;state.rareShards+=3;state.coins+=50;addLog('👑 BOSS DEFEATED! +3 💎 rare shards and +50 bonus coins.');showToast('👑 Boss defeated!')}
+ state.monsters=state.monsters.filter(x=>x.id!==m.id);const old=state.level;
+ while(state.level<levelCap()&&state.xp>=xpNeeded()){state.xp-=xpNeeded();state.level++}
+ if(state.level>=levelCap())state.xp=0;
+ if(state.level>old){state.playerHp=maxHp();addLog('🌟 Level up! You are now level '+state.level+'.');if(!state.admin&&state.level>=MAX_LEVEL)addLog('🏅 Max level reached!')}
+ endBattle();ensureNearbyMonsters();
+}
+function endBattle(){
+ hideIntro();
+ const cs=$('battleCutscene'),open=cs.classList.contains('show');
+ if(open)updateCutsceneUI();
+ clearTimeout(cutsceneTimer);
+ cutsceneTimer=setTimeout(()=>cs.classList.remove('show'),open?1400:0);
+ state.battle=null;specialCooldown=0;$('battlePanel').style.display='none';renderAll();saveLocal();
+}
+function updateBattleUI(){
+ if(!state.battle)return;const b=state.battle,m=currentBattleMonster();$('battlePanel').style.display='block';updateCutsceneUI();
+ $('battleSummary').textContent='Special cooldown: '+specialCooldown+' turns. Escape costs 50 coins; healing costs 5 coins.';
+ $('battlePetName').textContent=pet().name+' · Lv '+state.level;setSprite($('battlePetPic'),pet().emoji,20);$('battlePetHp').textContent=b.playerHp+' / '+b.playerMaxHp+' HP';
+ $('battlePetBar').style.width=Math.max(0,b.playerHp/b.playerMaxHp*100)+'%';
+ if(m){$('battleMonsterName').textContent=m.name+' · Lv '+m.level;setSprite($('battleMonsterPic'),m.emoji,20);$('battleMonsterPic').style.setProperty('--tint',m.tint);$('battleMonsterType').textContent=m.type+' type';$('battleMonsterType').style.color=m.tint;$('monsterBattleSide').style.borderColor=m.tint;$('battleMonsterHp').textContent=b.monsterHp+' / '+b.monsterMaxHp+' HP';$('battleMonsterBar').style.width=Math.max(0,b.monsterHp/b.monsterMaxHp*100)+'%'}
+ $('healButton').disabled=state.coins<5;$('specialButton').disabled=specialCooldown>0||!hasSpecial();
+}
+function buyPet(key){
+ const pp=PETS[key];if(!pp||hasPet(key))return;
+ if(state.battle)return showToast('Finish your battle first.');
+ if(state.coins<pp.price)return showToast('You need '+pp.price+' coins to buy '+pp.name+'.');
+ state.coins-=pp.price;state.owned.push(key);addLog('🛒 You bought '+pp.name+' for '+pp.price+' coins.');showToast('🛒 Bought '+pp.name+'!');renderAll();saveLocal();
+}
+function buySpecial(){
+ if(state.battle)return showToast('Finish your battle first.');
+ if(hasSpecial())return showToast('Special attack already unlocked.');
+ if(state.coins<SPECIAL_COST)return showToast('You need '+SPECIAL_COST+' coins.');
+ state.coins-=SPECIAL_COST;state.special=true;addLog('✨ You unlocked the Special attack!');showToast('✨ Special attack unlocked!');renderAll();saveLocal();
+}
+function tryAdmin(){
+ const v=$('adminInput').value.trim().replace(/\s+/g,' ');$('adminInput').value='';
+ if(v==='21/05/2026'){state.admin=true;addLog('👑 Admin unlocked.');showToast('👑 Admin unlocked!');renderAll();saveLocal()}
+ else showToast('Wrong admin code.');
+}
+function spawnMonsterNearby(){
+ const pos=findAdminSpawnTile('monster');
+ if(pos){state.monsters.push(makeMonster(pos.x,pos.y));return true}
+ showToast('No room to spawn a monster.');return false;
+}
+function findAdminSpawnTile(kind){
+ const px=Math.round(state.x),py=Math.round(state.y);
+ const candidates=[];
+ for(let radius=2;radius<=7;radius++){
+  for(let dx=-radius;dx<=radius;dx++){
+   const dy=radius-Math.abs(dx);
+   candidates.push([dx,dy]);if(dy)candidates.push([dx,-dy]);
+  }
+ }
+ for(const [dx,dy] of candidates){
+  const x=px+dx,y=py+dy,t=tileType(x,y);
+  if(!isWalkable(x,y)||['entrance','exit'].includes(t))continue;
+  if(kind==='chest'){
+   const key=chestKey(x,y);
+   if(state.taken[key]||(state.spawnedChests||[]).some(c=>c.key===key))continue;
+   if(state.monsters.some(m=>Math.round(m.x)===x&&Math.round(m.y)===y))continue;
+  }else if(state.monsters.some(m=>Math.round(m.x)===x&&Math.round(m.y)===y))continue;
+  return{x,y};
+ }
+ return null;
+}
+function adminSpawnLevel(requestedLevel,fallback){
+ // Custom levels above 25 are allowed only through the authenticated admin spawn system.
+ if(requestedLevel===undefined||requestedLevel===null||requestedLevel==='')return fallback;
+ const n=Number(requestedLevel);if(!Number.isFinite(n))return fallback;
+ return Math.max(1,Math.min(MAX_ADMIN_SPAWN_LEVEL,Math.floor(n)));
+}
+function spawnExactMonster(sourceZone,index,requestedLevel=null){
+ const base=(MONSTERS[sourceZone]||[])[index];if(!base)return false;
+ const pos=findAdminSpawnTile('monster');if(!pos)return false;
+ const level=adminSpawnLevel(requestedLevel,pickMonsterLevel(sourceZone,Math.random(),false));
+ const hp=Math.round((base.hp+(level-1)*7)*MOB_STRENGTH_MULTIPLIER);
+ const atk=Math.round((base.atk+level-1)*MOB_STRENGTH_MULTIPLIER);
+ state.monsters.push({id:'m'+nextMonsterId++,x:pos.x,y:pos.y,name:base.name,emoji:base.emoji,tint:base.tint,type:base.type,level,maxHp:hp,hp,atk,xpReward:base.xp+(level-1)*8,coinReward:base.coins+(level-1)*3,color:base.tint,adminSpawned:true});
+ return true;
+}
+function spawnExactBoss(sourceZone,requestedLevel=null){
+ const def=BOSS_DEF[sourceZone];if(!def)return false;
+ const pos=findAdminSpawnTile('monster');if(!pos)return false;
+ // Bosses spawn at level 25 by default, but admin commands may override their level.
+ const level=adminSpawnLevel(requestedLevel,MAX_LEVEL),hp=90+level*28;
+ state.monsters.push({id:'m'+nextMonsterId++,x:pos.x,y:pos.y,boss:true,name:def.name,emoji:def.emoji,tint:def.tint,type:def.type,level,maxHp:hp,hp,atk:12+level*2,xpReward:140+level*20,coinReward:100+level*12,color:def.tint,adminSpawned:true});
+ return true;
+}
+function spawnAdminChest(){
+ if(!Array.isArray(state.spawnedChests))state.spawnedChests=[];
+ const pos=findAdminSpawnTile('chest');if(!pos)return false;
+ const key=chestKey(pos.x,pos.y);state.spawnedChests.push({key,x:pos.x,y:pos.y,adminSpawned:true});return true;
+}
+function populateAdminSpawner(){
+ const select=$('adminSpawnSelect');if(!select)return;
+ select.replaceChildren();
+ const addGroup=(label,items)=>{const group=document.createElement('optgroup');group.label=label;items.forEach(item=>{const opt=document.createElement('option');opt.value=item.value;opt.textContent=item.label;group.append(opt)});select.append(group)};
+ addGroup('General',[{value:'random',label:'🎲 Random monster'},{value:'chest',label:'📦 Treasure chest'},{value:'boss:current',label:'👑 Boss for current region'}]);
+ Object.keys(MONSTERS).forEach(zoneKey=>addGroup((ZONES[zoneKey]?.emoji||'')+' '+(ZONES[zoneKey]?.name||zoneKey),MONSTERS[zoneKey].map((m,i)=>({value:'monster:'+zoneKey+':'+i,label:m.emoji+' '+m.name}))));
+ addGroup('Bosses',Object.keys(BOSS_DEF).map(k=>({value:'boss:'+k,label:'👑 '+BOSS_DEF[k].name+' ('+ZONES[k].name+')'})));
+}
+function adminSpawnSelected(){
+ if(!state.admin)return;
+ if(state.battle)return showToast('Finish your battle before spawning things.');
+ const selected=$('adminSpawnSelect')?.value||'random';
+ const count=Math.max(1,Math.min(10,Number($('adminSpawnCount')?.value)||1));
+ const levelInput=$('adminSpawnLevel');
+ const levelText=(levelInput?.value||'').trim();
+ let requestedLevel=null;
+ if(levelText!==''){
+  const n=Number(levelText);
+  if(!Number.isFinite(n)||!Number.isInteger(n)||n<1||n>MAX_ADMIN_SPAWN_LEVEL){
+   showToast('Spawn level must be a whole number from 1 to '+MAX_ADMIN_SPAWN_LEVEL+'.');
+   levelInput?.focus();return;
+  }
+  requestedLevel=n;
+ }
+ let spawned=0;
+ for(let n=0;n<count;n++){
+  let ok=false;
+  if(selected==='chest')ok=spawnAdminChest();
+  else if(selected==='random'){
+   if(requestedLevel===null)ok=!!spawnMonsterNearby();
+   else {
+    const zoneKey=state.inCave?'cave':state.zoneKey;
+    const pool=MONSTERS[zoneKey]||MONSTERS.meadow;
+    const index=Math.floor(Math.random()*pool.length);
+    ok=spawnExactMonster(zoneKey,index,requestedLevel);
+   }
+  }
+  else if(selected==='boss:current')ok=spawnExactBoss(state.zoneKey,requestedLevel);
+  else if(selected.startsWith('boss:'))ok=spawnExactBoss(selected.slice(5),requestedLevel);
+  else if(selected.startsWith('monster:')){const parts=selected.split(':');ok=spawnExactMonster(parts[1],Number(parts[2]),requestedLevel);}
+  if(ok)spawned++;else if(selected==='random')break;
+ }
+ if(spawned){
+  const label=selected==='chest'?'treasure chest':selected==='random'?'random monster':selected.startsWith('boss:')?'boss':(MONSTERS[selected.split(':')[1]]||[])[Number(selected.split(':')[2])]?.name||'monster';
+  const levelLabel=requestedLevel===null?'':' at level '+requestedLevel;
+  addLog('🛠️ Admin spawned '+spawned+' '+label+(spawned===1?'':'s')+levelLabel+'.');
+  showToast('✅ Spawned '+spawned+' '+label+(spawned===1?'':'s')+levelLabel+'.');
+ }else showToast('No safe space nearby for that spawn.');
+ renderAll();saveLocal();
+}
+function runAdminCommand(){
+ if(!state.admin)return;
+ const input=$('adminCommandInput'),raw=(input?.value||'').trim();if(!raw)return showToast('Enter an admin command.');
+ if(input)input.value='';
+ const parts=raw.replace(/^\//,'').split(/\s+/),cmd=(parts[0]||'').toLowerCase();
+ if(cmd!=='spawn')return showToast('Try: spawn Mossling level 100, spawn Mossling 3 level 250, spawn boss volcano level 500, or spawn Thorn Boar King level 75.');
+ const args=parts.slice(1);
+ // Optional level modifier: "level 10" or "lvl 10". Without it, normal mobs get a rolled level and bosses stay level 25.
+ let requestedLevel=null;
+ for(let i=0;i<args.length-1;i++){
+  if(/^(?:level|lvl)$/i.test(args[i])&&/^\d+$/.test(args[i+1])){requestedLevel=adminSpawnLevel(args[i+1],null);args.splice(i,2);break;}
+ }
+ let requestedCount=NaN;
+ if(args.length&&/^\d+$/.test(args[args.length-1]))requestedCount=Number(args.pop());
+ const count=Math.max(1,Math.min(10,Number.isFinite(requestedCount)&&requestedCount>0?Math.floor(requestedCount):1));
+ const target=(args.join(' ')||'random').toLowerCase();
+ if(state.battle)return showToast('Finish your battle before spawning things.');
+ let spawned=0;
+ if(target==='all'){
+  const jobs=[];Object.keys(MONSTERS).forEach(z=>MONSTERS[z].forEach((m,i)=>jobs.push(()=>spawnExactMonster(z,i,requestedLevel))));
+  Object.keys(BOSS_DEF).forEach(z=>jobs.push(()=>spawnExactBoss(z,requestedLevel)));
+  jobs.push(()=>spawnAdminChest());
+  for(const job of jobs){if(job())spawned++;else break;}
+ }else if(['chest','chests','treasure','treasure chest'].includes(target)){
+  for(let i=0;i<count;i++){if(spawnAdminChest())spawned++;else break;}
+ }else if(target==='boss'||target==='bosses'||target.startsWith('boss ')){
+  const suffix=target.replace(/^bosses?\s*/,'').trim();
+  const normaliseBoss=v=>v.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const namedBossZone=Object.keys(BOSS_DEF).find(z=>normaliseBoss(BOSS_DEF[z].name)===normaliseBoss(suffix));
+  const bossZone=ZONES[suffix]?suffix:(namedBossZone||state.zoneKey);
+  for(let i=0;i<count;i++){if(spawnExactBoss(bossZone,requestedLevel))spawned++;else break;}
+ }else if(['random','monster','random monster'].includes(target)){
+  for(let i=0;i<count;i++){
+   let ok=false;
+   if(requestedLevel===null)ok=!!spawnMonsterNearby();
+   else {
+    const pool=state.inCave?MONSTERS.cave:(state.zoneKey==='volcano'?MONSTERS.volcano:state.zoneKey==='cave'?MONSTERS.cave:MONSTERS.meadow);
+    const ix=Math.floor(Math.random()*pool.length),zoneKey=state.inCave?'cave':state.zoneKey;
+    const globalIndex=MONSTERS[zoneKey].findIndex(m=>m.name===pool[ix].name);ok=spawnExactMonster(zoneKey,globalIndex,requestedLevel);
+   }
+   if(ok)spawned++;else break;
+  }
+ }else{
+  const normalise=v=>v.toLowerCase().replace(/[^a-z0-9]/g,'');
+  let found=null;
+  Object.keys(MONSTERS).some(z=>MONSTERS[z].some((m,i)=>{if(normalise(m.name)===normalise(target)){found={zone:z,index:i,name:m.name};return true}return false}));
+  if(!found){const bossZone=Object.keys(BOSS_DEF).find(z=>normalise(BOSS_DEF[z].name)===normalise(target));if(bossZone){for(let i=0;i<count;i++){if(spawnExactBoss(bossZone,requestedLevel))spawned++;else break;}}else return showToast('Unknown spawn target: '+target+'. Use a monster or boss name, chest, random, or all.');}
+  else for(let i=0;i<count;i++){if(spawnExactMonster(found.zone,found.index,requestedLevel))spawned++;else break;}
+ }
+ if(spawned){const lv=requestedLevel===null?' (normal level rules)':' at level '+requestedLevel;addLog('🛠️ Admin command spawned '+spawned+' object'+(spawned===1?'':'s')+lv+'.');showToast('✅ Admin spawned '+spawned+' object'+(spawned===1?'':'s')+lv+'.');}
+ else showToast('No safe space nearby. Try a smaller amount or move to open ground.');
+ renderAll();saveLocal();
+}
+function adminAction(k){
+ if(!state.admin)return;
+ const C=state.cheats;
+ if(k==='coins')state.coins+=1000;
+ else if(k==='coins10k')state.coins+=10000;
+ else if(k==='wins')state.wins++;
+ else if(k==='shards')state.rareShards+=10;
+ else if(k==='diamonds')state.diamonds+=10;
+ else if(k==='regions'){state.wins=Math.max(state.wins,8);addLog('🗺️ All regions unlocked.')}
+ else if(k==='level'||k==='level10'||k==='level100'){state.level=Math.min(MAX_LEVEL,state.level+(k==='level100'?100:k==='level10'?10:1));state.xp=0;state.playerHp=maxHp()}
+ else if(k==='heal'){state.playerHp=maxHp();if(state.battle)state.battle.playerHp=state.battle.playerMaxHp}
+ else if(k==='stamina'){state.stamina=STAMINA_MAX;exhausted=false}
+ else if(k==='cooldown'){specialCooldown=0}
+  else if(k==='time'){const wasNight=isNight();state.clock=wasNight?12:22;updateTime();addLog(wasNight?'🌞 Admin set the time to noon.':'🌙 Admin set the time to 22:00.');drawMap(performance.now())}
+ else if(k==='spawn')spawnMonsterNearby();
+ else if(k==='boss')spawnBossNearby();
+ else if(k==='clear'){if(state.battle)return showToast('Finish your battle first.');state.monsters=[];addLog('🧹 Nearby monsters cleared.')}
+ else if(k==='instawin'){if(!state.battle)return showToast('You are not in a battle.');const m=currentBattleMonster();if(m){state.battle.monsterHp=0;m.hp=0;return winBattle(m)}}
+ else if(k.startsWith('tog:')){const n=k.slice(4);C[n]=!C[n];showToast((C[n]?'✅ ':'⛔ ')+n+' '+(C[n]?'ON':'OFF'))}
+ else if(k==='off'){if(state.battle)return showToast('Finish your battle first.');Object.keys(C).forEach(x=>C[x]=false);state.admin=false;Object.keys(AV).forEach(k=>{if(!avOwned(k,state.avatar[k]))state.avatar[k]=AV_DEF[k]});if(PETS[state.petKey].adminOnly){state.petKey='fox';state.playerHp=maxHp()}if(state.level>MAX_LEVEL){state.level=MAX_LEVEL;state.xp=0;addLog('⭐ Level reset to the maximum of '+MAX_LEVEL+'.')}state.playerHp=Math.min(state.playerHp,maxHp());addLog('👑 Admin disabled.')}
+ renderAll();saveLocal();updateStaminaUI(true);
+}
+function renderShop(){
+ $('shopCoins').textContent=state.coins;
+ const b=$('buySpecial');b.textContent=hasSpecial()?'✨ Special attack — unlocked':'✨ Special attack — '+SPECIAL_COST+' coins';
+ b.disabled=hasSpecial();
+ [['adTogStamina','stamina','⚡ Infinite Stamina'],['adTogSpeed','speed','💨 Speed x2'],['adTogGod','god','🛡️ God Mode'],['adTogOne','onehit','💥 One-Hit Kills']].forEach(([id,k,l])=>{const e=$(id);if(e){e.textContent=l+': '+(state.cheats[k]?'ON':'OFF');e.classList.toggle('on',!!state.cheats[k])}});$('adminTools').style.display=state.admin?'block':'none';$('adminLogin').style.display=state.admin?'none':'flex';const timeSkip=$('timeSkipButton');if(timeSkip)timeSkip.style.display=state.admin?'inline-flex':'none';
+}
+function restPet(){if(state.battle)return showToast('You cannot rest during battle.');state.playerHp=maxHp();renderAll();saveLocal();animateSide('petPortrait','fighter-heal');addLog('💚 '+pet().name+' recovered full health.')}
+function choosePet(key){
+ const pp=PETS[key];if(!pp||state.battle)return;
+ if(!hasPet(key))return showToast('Press Buy to get '+pp.name+' first ('+pp.price+' coins).');
+ state.petKey=key;state.playerHp=maxHp();renderAll();saveLocal();addLog('🐾 You chose '+pet().name+'.')}
+function renderZoneUI(){
+ $('leaveCaveButton').style.display=state.inCave?'inline-block':'none';
+ $('mapTitle').textContent=state.inCave?'🕳️ Hidden Cave':zone().emoji+' '+zone().name;
+ $('mapSubtitle').textContent=state.inCave?'Find the glowing exit.':zone().subtitle;
+ if(!state.inCave){const bd=BOSS_DEF[state.zoneKey]||BOSS_DEF.meadow,lp=lairPos();$('mapSubtitle').textContent+=bossReady()?' · 👑 '+bd.name+' lair: X '+lp.x+', Y '+lp.y:' · 👑 Boss recovering…'}
+ $('hudStage').textContent=(state.inCave?'CAVE ':'')+'X '+Math.round(state.x)+' · Y '+Math.round(state.y);
+ $('mapHint').textContent=state.inCave?'Find the glowing exit or use Leave Cave.':'Use WASD, arrows, joystick or direction buttons. Interact with cave entrances.';
+ Object.keys(ZONES).forEach(k=>{const b=$('zone-'+k);b.classList.toggle('active',!state.inCave&&state.zoneKey===k);b.disabled=state.wins<ZONES[k].unlock||state.inCave;b.title=state.wins<ZONES[k].unlock?'Requires '+ZONES[k].unlock+' wins':''});
+}
+function renderStats(){
+ $('statLevel').textContent=state.level+(!state.admin&&state.level>=MAX_LEVEL?' (MAX)':'');$('statCoins').textContent=state.coins;$('statWins').textContent=state.wins;$('statShards').textContent=state.rareShards;$('statDiamonds').textContent=state.diamonds;
+ setSprite($('petPortrait'),pet().emoji,20);$('petName').textContent=pet().name;
+ $('petDetails').textContent=pet().species+' · '+evolutionName()+' · Level '+state.level;
+ $('petStats').textContent='HP '+maxHp()+' · ATK '+attackPower()+' · SPD '+pet().speed+' · '+pet().special;
+ const atMax=state.level>=levelCap();
+ $('xpLabel').textContent=atMax?'MAX LEVEL':state.xp+' / '+xpNeeded();$('xpBar').style.width=atMax?'100%':Math.min(100,state.xp/xpNeeded()*100)+'%';
+ if(state.playerHp===null)state.playerHp=maxHp();state.playerHp=Math.min(state.playerHp,maxHp());
+ $('petHpLabel').textContent=state.playerHp+' / '+maxHp()+' HP';$('hpBar').style.width=Math.max(0,state.playerHp/maxHp()*100)+'%';
+}
+function renderPetPicker(){
+ const holder=$('petPicker');holder.innerHTML='';
+ Object.values(PETS).forEach(p=>{
+  if(p.adminOnly&&!state.admin)return;
+  const b=document.createElement('button');b.className=state.petKey===p.key?'selected':'';
+  const a=document.createElement('strong');a.textContent=p.emoji+' '+p.name;
+  const s=document.createElement('span');s.textContent=p.species;
+  const st=document.createElement('span');st.textContent='HP '+p.hp+' · ATK '+p.atk;
+  const sp=document.createElement('span');sp.textContent='✨ '+p.special;
+  const pr=document.createElement('span');pr.textContent=p.adminOnly?'👑 Admin pet':hasPet(p.key)?'✅ Owned':'🪙 '+p.price+' coins';pr.style.color=hasPet(p.key)?'#7affbd':'#ffd166';b.append(a,s,st,sp,pr);b.style.width='100%';b.addEventListener('click',()=>choosePet(p.key));
+  const wrap=document.createElement('div');wrap.append(b);
+  if(!hasPet(p.key)){const buy=document.createElement('button');buy.className='gold';buy.style.cssText='width:100%;margin-top:6px';buy.textContent='🛒 Buy — '+p.price+' coins';buy.disabled=state.coins<p.price;buy.addEventListener('click',()=>buyPet(p.key));wrap.append(buy)}
+  holder.appendChild(wrap);
+ });
+}
+function renderMonsterList(){
+ const holder=$('monsterList');holder.innerHTML='';const near=getNearbyMonsters().filter(i=>i.distance<=6).slice(0,7);
+ $('monsterCount').textContent=near.length+' nearby';
+ if(!near.length){holder.textContent='No monsters nearby. Keep exploring!';return}
+ near.forEach(({monster:m,distance})=>{
+  const card=document.createElement('div');card.className='monster-card'+(distance<=2?' nearby':'');
+  const row=document.createElement('div');row.className='row';
+  const pic=document.createElement('div');pic.className='mon-pic';pic.style.setProperty('--tint',m.tint);setSprite(pic,m.emoji,20);
+  const info=document.createElement('div');const title=document.createElement('strong');title.textContent=(m.boss?'👑 ':'')+m.name;
+  const ty=document.createElement('div');ty.className='small';ty.style.color=m.tint;ty.textContent=m.type+' type';info.append(title,ty);
+  const left=document.createElement('div');left.style.cssText='display:flex;align-items:center;gap:10px;min-width:0';left.append(pic,info);
+  const lv=document.createElement('span');lv.className='small';lv.textContent='Lv '+m.level;row.append(left,lv);
+  const meta=document.createElement('div');meta.className='monster-meta';meta.textContent='HP '+m.hp+' / '+m.maxHp+' · Distance '+Math.round(distance);
+  const bar=document.createElement('div');bar.className='progress';const fill=document.createElement('div');fill.style.width=Math.max(0,m.hp/m.maxHp*100)+'%';fill.style.background='#ff8198';bar.append(fill);
+  const b=document.createElement('button');b.className=distance<=2?'primary':'';b.textContent=distance<=2?'⚔️ Battle':'Move closer';b.disabled=distance>2||!!state.battle;b.addEventListener('click',()=>distance<=2?startBattle(m.id):showToast('Move closer first.'));
+  card.append(row,meta,bar,b);holder.append(card);
+ });
+}
+function renderLog(){const holder=$('adventureLog');holder.innerHTML='';const entries=state.log.slice(-18).reverse();if(!entries.length){holder.textContent='Welcome to Pet Arena!';return}entries.forEach(msg=>{const d=document.createElement('div');d.className='log-entry';d.textContent=msg;holder.append(d)})}
+function renderAll(){renderShop();renderZoneUI();renderStats();renderPetPicker();renderMonsterList();renderLog();updateTime();drawMap(performance.now());if(state.battle)updateBattleUI()}
+function openBestiary(){renderBestiary('all');$('bestiaryOverlay').classList.add('show')}
+function closeBestiary(){$('bestiaryOverlay').classList.remove('show')}
+function renderBestiary(filter){
+ const discovered=new Set(state.bestiary||[]),grid=$('bestiaryGrid');grid.innerHTML='';
+ const entries=[];
+ Object.keys(MONSTERS).forEach(zoneKey=>{if(filter!=='all'&&filter!=='bosses'&&filter!==zoneKey)return;MONSTERS[zoneKey].forEach(m=>entries.push({...m,zoneKey,boss:false}))});
+ if(filter==='all'||filter==='bosses')Object.keys(BOSS_DEF).forEach(zoneKey=>entries.push({...BOSS_DEF[zoneKey],zoneKey,boss:true,level:MAX_LEVEL,hp:90+MAX_LEVEL*28,atk:12+MAX_LEVEL*2}));
+ const count=entries.filter(m=>discovered.has(m.name)).length;$('bestiaryProgress').textContent=(state.bestiary||[]).length+' unique monsters discovered · '+count+'/'+entries.length+' shown in this index';
+ entries.forEach(m=>{const known=discovered.has(m.name),card=document.createElement('div');card.className='bestiary-entry'+(known?'':' unknown');const icon=document.createElement('div');icon.className='bestiary-icon';icon.textContent=known?m.emoji:'❔';const title=document.createElement('strong');title.textContent=known?m.name:'Undiscovered Monster';const area=document.createElement('div');area.className='small';area.textContent=(m.boss?'👑 Boss · ':'')+ZONES[m.zoneKey].emoji+' '+ZONES[m.zoneKey].name;card.append(icon,title,area);const detail=document.createElement('div');detail.className='small';detail.textContent=known?((m.type||'Unknown')+' type · Base HP '+(m.boss?m.hp:Math.round(m.hp*MOB_STRENGTH_MULTIPLIER))+' · ATK '+(m.boss?m.atk:Math.round(m.atk*MOB_STRENGTH_MULTIPLIER))):'Encounter this monster to reveal its details.';card.append(detail);grid.append(card)});
+}
+
+function saveObject(){return{version:1,bestiary:state.bestiary||[],petKey:state.petKey,level:state.level,xp:state.xp,coins:state.coins,wins:state.wins,zoneKey:state.zoneKey,rareShards:state.rareShards,x:state.inCave&&state.returnPoint?state.returnPoint.x:state.x,y:state.inCave&&state.returnPoint?state.returnPoint.y:state.y,playerHp:state.playerHp,clock:state.clock,steps:state.steps,spawnedChests:state.spawnedChests,owned:state.owned,special:state.special,admin:state.admin,diamonds:state.diamonds,avatar:state.avatar,unlocked:state.unlocked,bossAt:state.bossAt,taken:state.taken,streak:state.streak,name:chat.name}}
+function saveLocal(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(saveObject()))}catch(e){console.warn('Save failed',e)}}
+function loadLocal(){
+ try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(!d)return false;
+ if(PETS[d.petKey])state.petKey=d.petKey;state.level=Math.max(1,Number(d.level)||1);state.xp=Math.max(0,Number(d.xp)||0);state.coins=Math.max(0,Number(d.coins)||0);state.wins=Math.max(0,Number(d.wins)||0);state.rareShards=Math.max(0,Number(d.rareShards)||0);state.zoneKey=ZONES[d.zoneKey]?d.zoneKey:'meadow';state.x=Number(d.x)||0;state.y=Number(d.y)||0;state.playerHp=Number.isFinite(d.playerHp)?d.playerHp:null;state.clock=Number.isFinite(d.clock)?d.clock:8;
+ const legacy=!Array.isArray(d.owned);
+ state.owned=(legacy?[]:d.owned).filter(k=>PETS[k]);
+ if(!state.owned.includes('fox'))state.owned.push('fox');
+ if(PETS[d.petKey]&&!state.owned.includes(d.petKey)&&legacy)state.owned.push(d.petKey);
+  state.special=legacy?true:!!d.special;state.admin=!!d.admin;state.steps=Math.max(0,Number(d.steps)||0);state.spawnedChests=Array.isArray(d.spawnedChests)?d.spawnedChests.filter(c=>c&&typeof c.key==='string'&&Number.isFinite(c.x)&&Number.isFinite(c.y)).slice(-500):[];state.taken=(d.taken&&typeof d.taken==='object')?d.taken:{};state.bestiary=Array.isArray(d.bestiary)?d.bestiary.filter(x=>typeof x==='string'):[];state.streak=Number(d.streak)||0;state.diamonds=Math.max(0,Number(d.diamonds)||0);state.bossAt=(d.bossAt&&typeof d.bossAt==='object')?d.bossAt:{};state.unlocked=Array.isArray(d.unlocked)?d.unlocked.filter(x=>/^[a-z]+:\d+$/.test(x)):[];if(d.avatar&&typeof d.avatar==='object')Object.keys(AV).forEach(k=>{const v=Number(d.avatar[k]);if(Number.isInteger(v)&&v>=0&&v<AV[k].length)state.avatar[k]=v});if(!state.admin)Object.keys(AV).forEach(k=>{if(!avOwned(k,state.avatar[k]))state.avatar[k]=AV_DEF[k]});if(typeof d.name==='string')chat.name=cleanName(d.name);
+ if(state.level>MAX_LEVEL){state.level=MAX_LEVEL;state.xp=0}
+ if(!hasPet(state.petKey))state.petKey='fox';return true
+ }catch(e){return false}
+}
+function saveProgress(){saveLocal();addLog('💾 Your progress was saved on this device.');showToast('💾 Progress saved!')}
+function setJoystick(e){
+ const r=$('joystick').getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+ let dx=(e.clientX-cx)/(r.width*.34),dy=(e.clientY-cy)/(r.height*.34),mag=Math.hypot(dx,dy);
+ if(mag>1){dx/=mag;dy/=mag}stick.x=dx;stick.y=dy;
+ $('joystickThumb').style.left=(50+dx*34)+'%';$('joystickThumb').style.top=(50+dy*34)+'%';
+}
+function releaseJoystick(){stick.active=false;stick.pointerId=null;stick.x=stick.y=0;$('joystickThumb').style.left='50%';$('joystickThumb').style.top='50%'}
+$('joystick').addEventListener('pointerdown',e=>{if(state.battle)return;stick.active=true;stick.pointerId=e.pointerId;$('joystick').setPointerCapture(e.pointerId);setJoystick(e);e.preventDefault()});
+$('joystick').addEventListener('pointermove',e=>{if(stick.active&&e.pointerId===stick.pointerId)setJoystick(e)});
+$('joystick').addEventListener('pointerup',releaseJoystick);$('joystick').addEventListener('pointercancel',releaseJoystick);
+document.querySelectorAll('.dpad button').forEach(b=>{
+ const start=e=>{if(state.battle)return;heldPad.x=Number(b.dataset.dx);heldPad.y=Number(b.dataset.dy);e.preventDefault()};
+ const stop=()=>{heldPad.x=heldPad.y=0};
+ b.addEventListener('pointerdown',start);b.addEventListener('pointerup',stop);b.addEventListener('pointercancel',stop);b.addEventListener('lostpointercapture',stop);
+ b.addEventListener('click',()=>movePlayer(Number(b.dataset.dx),Number(b.dataset.dy)));
+});
+document.addEventListener('keydown',e=>{
+ const k=e.key.toLowerCase();if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){if(k==='escape')document.activeElement.blur();return}
+ if(k==='/'){e.preventDefault();openChat(true);return}
+ if(k==='shift')heldKeys.add('shift');
+ if(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d'].includes(k)&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)){heldKeys.add(k);e.preventDefault()}
+ if(!e.repeat&&(k==='e'||k==='enter'))interactNearby();
+ if(k==='f'&&!e.repeat&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))toggleFullscreen();
+ if(k==='h'&&!e.repeat)$('helpOverlay').classList.contains('show')?hideHelp():showHelp();
+ if(k==='escape'){if($('avatarOverlay').classList.contains('show'))closeAvatar();else if($('helpOverlay').classList.contains('show'))hideHelp();else if(state.inCave)exitCave()}
+});
+document.addEventListener('keyup',e=>heldKeys.delete(e.key.toLowerCase()));
+window.addEventListener('blur',()=>{heldKeys.clear();heldPad.x=heldPad.y=0;releaseJoystick()});
+function movementVector(){
+ let x=stick.x,y=stick.y;if(heldPad.x||heldPad.y){x=heldPad.x;y=heldPad.y}
+ const up=heldKeys.has('w')||heldKeys.has('arrowup'),down=heldKeys.has('s')||heldKeys.has('arrowdown'),left=heldKeys.has('a')||heldKeys.has('arrowleft'),right=heldKeys.has('d')||heldKeys.has('arrowright');
+ if(up||down||left||right){x=(right?1:0)-(left?1:0);y=(down?1:0)-(up?1:0)}
+ const mag=Math.hypot(x,y);return mag>.12?{x:x/mag,y:y/mag,magnitude:Math.min(1,mag)}:{x:0,y:0,magnitude:0}
+}
+const WALK_SPEED=10,RUN_SPEED=25,SPEED_UNIT=6; /* speed units per tile/second: walk ≈ 4.2, run ≈ 5.8 tiles/s */
+const STAMINA_MAX=100,RUN_DRAIN=20,WALK_REGEN=8,REST_REGEN=25;
+let runToggle=false,exhausted=false,running=false,staminaCache='';
+function inFullscreen(){return !!(document.fullscreenElement||document.webkitFullscreenElement)}
+function syncFullscreen(){
+ const on=inFullscreen();
+ $('fsButton').textContent=on?'🗗 Exit Fullscreen':'⛶ Fullscreen';
+ $('floatFs').textContent=on?'🗗':'⛶';
+ setTimeout(()=>drawMap(performance.now()),150);
+}
+function toggleFullscreen(){
+ const d=document,el=d.documentElement,fail=()=>showToast('Fullscreen is not available here. On iPhone use Share → Add to Home Screen.');
+ try{
+  if(inFullscreen()){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}
+  else{
+   const f=el.requestFullscreen||el.webkitRequestFullscreen;if(!f)return fail();
+   const r=f.call(el);if(r&&r.catch)r.catch(fail);
+  }
+ }catch(e){fail()}
+}
+document.addEventListener('fullscreenchange',syncFullscreen);
+document.addEventListener('webkitfullscreenchange',syncFullscreen);
+function showHelp(){
+ $('helpSpeeds').textContent='Your trainer has stamina (max '+STAMINA_MAX+'). Walking is speed '+WALK_SPEED+' and regains stamina slowly. Running is speed '+RUN_SPEED+' but drains stamina fast. Standing still refills it quickest. At 0 you are exhausted and can only walk until stamina recovers a little.';
+ $('helpOverlay').classList.add('show');
+}
+function hideHelp(){$('helpOverlay').classList.remove('show')}
+function toggleRun(){runToggle=!runToggle;updateStaminaUI(true)}
+function updateStaminaUI(force){
+ const pct=Math.round(state.stamina),mode=exhausted?'😮‍💨 Exhausted':running?'🏃 Running':'🚶 Walking';
+ const spd=(running?RUN_SPEED:WALK_SPEED)*(state.cheats.speed?2:1);
+ const key=pct+'|'+mode+'|'+spd+'|'+runToggle+'|'+state.cheats.stamina;
+ if(!force&&key===staminaCache)return;staminaCache=key;
+ $('staminaBar').style.width=pct+'%';
+ $('staminaBar').style.background=exhausted?'linear-gradient(90deg,#ff647f,#ffc0a1)':'linear-gradient(90deg,#ffb300,#ffe27a)';
+ $('staminaLabel').textContent='⚡ '+(state.cheats.stamina?'∞':pct+' / '+STAMINA_MAX);
+ $('speedLabel').textContent=mode+' · speed '+spd;
+ const rb=$('runButton');rb.textContent='🏃 Run: '+(runToggle?'On':'Off');rb.classList.toggle('green',runToggle);$('floatRun').classList.toggle('green',runToggle);
+}
+function continuousMove(dt){
+ const v=state.battle?{magnitude:0}:movementVector(),moving=v.magnitude>0,inf=state.cheats.stamina;
+ const wantRun=moving&&(runToggle||heldKeys.has('shift'));
+ if(exhausted&&state.stamina>=25)exhausted=false;
+ running=wantRun&&!exhausted&&(inf||state.stamina>0);
+ if(running){
+  if(!inf){state.stamina=Math.max(0,state.stamina-RUN_DRAIN*dt);if(state.stamina<=0){exhausted=true;running=false;showToast('😮‍💨 Out of stamina! Catch your breath.')}}
+ }else state.stamina=Math.min(STAMINA_MAX,state.stamina+(moving?WALK_REGEN:REST_REGEN)*dt);
+ if(inf){state.stamina=STAMINA_MAX;exhausted=false}
+ updateStaminaUI();
+ anim.moving=moving;if(moving){anim.t+=dt*(running?16:10);if(Math.abs(v.x)>.2)anim.face=v.x>0?1:-1}
+ if(!moving)return;
+ const units=(running?RUN_SPEED:WALK_SPEED)*(state.cheats.speed?2:1),speed=units/SPEED_UNIT*v.magnitude;
+ updatePosition(state.x+v.x*speed*dt,state.y);updatePosition(state.x,state.y+v.y*speed*dt);
+}
+function animationFrame(time){if(!lastFrame)lastFrame=time;const dt=Math.min((time-lastFrame)/1000,.05);lastFrame=time;tickWorldClock(dt);continuousMove(dt);updateFollower(dt);drawMap(time);requestAnimationFrame(animationFrame)}
+canvas.addEventListener('click',e=>{
+ const r=canvas.getBoundingClientRect(),sx=Math.floor((e.clientX-r.left)/r.width*VIEW),sy=Math.floor((e.clientY-r.top)/r.height*VIEW);
+ const wx=Math.floor(state.x)-9+sx,wy=Math.floor(state.y)-9+sy;
+ if(state.inCave&&tileType(wx,wy)==='exit'){exitCave();return}
+ if(!state.inCave&&tileType(wx,wy)==='entrance'){if(Math.abs(wx-state.x)+Math.abs(wy-state.y)<=1.5)enterCave({x:wx,y:wy});else showToast('Move beside the purple doorway and press Interact.');return}
+ const m=state.monsters.find(q=>q.x===wx&&q.y===wy);if(m){if(Math.abs(m.x-state.x)+Math.abs(m.y-state.y)<=2)startBattle(m.id);else showToast('Move closer to that monster first.')}
+});
+function initialiseGame(){
+ loadLocal();if(state.playerHp===null||state.playerHp<=0)state.playerHp=maxHp();
+ if(!isWalkable(state.x,state.y)){state.x=3;state.y=9}
+ ensureNearbyMonsters();renderAll();
+ addLog('🌟 Welcome to Pet Arena!');addLog('🎮 Move with WASD, arrows, joystick or direction buttons.');addLog('🕳️ Explore to find cave entrances.');
+ setupChat();requestAnimationFrame(animationFrame);
+}
+/* CHAT (local only: NPC friends + other tabs of this browser) */
+const BAD_STRONG=['fuck','shit','bitch','cunt','whore','slut','nigg','fagg','bastard','asshole','dickhead','pussy','porn','vagina','nazi','wank','twat','retard','dumbass','jackass','douche','goddamn'];
+const BAD_EXACT=['ass','asses','arse','dick','cock','damn','dammit','crap','sex','sexy','piss','tit','tits','hell','nude','nudes','kys','wtf','stfu','hoe','fag','rape','cum','penis','boob','boobs'];
+const LEET={'0':'o','1':'i','3':'e','4':'a','5':'s','7':'t','@':'a','$':'s'};
+function norm(t){return t.toLowerCase().replace(/[013457@$]/g,c=>LEET[c]).replace(/[^a-z]/g,'')}
+function badToken(t){
+ const n=norm(t);if(!n)return false;
+ const c1=n.replace(/(.)\1+/g,'$1'),c2=n.replace(/(.)\1{2,}/g,'$1$1');
+ return BAD_STRONG.some(w=>n.includes(w)||c1.includes(w))||BAD_EXACT.includes(n)||BAD_EXACT.includes(c2);
+}
+function filterText(s){
+ s=String(s).replace(/https?:\/\/\S+|www\.\S+|\S+@\S+\.\S+/gi,m=>'#'.repeat(Math.min(m.length,8)));
+ s=s.replace(/(?:\d[\s.\-]*){7,}/g,m=>'#'.repeat(m.trim().length));
+ s=s.replace(/\b(?:[a-z0-9@$][\s.\-_*]+){2,}[a-z0-9@$]\b/gi,m=>badToken(m)?'#'.repeat(m.length):m);
+ return s.split(/(\s+)/).map(t=>/\S/.test(t)&&badToken(t)?'#'.repeat(t.length):t).join('');
+}
+function cleanName(n){n=String(n).replace(/[^\w]/g,'').slice(0,14);return(!n||badToken(n))?'Trainer'+(1000+Math.floor(Math.random()*9000)):n}
+const chat={name:'Trainer'+(1000+Math.floor(Math.random()*9000)),last:0,lastText:'',lastTextAt:0,open:innerWidth>850,bubble:null};
+const NAME_COLORS=['#fd2943','#01a2ff','#02b857','#da8541','#a75eb8','#f5cd30','#e8bac8','#d7c59a'];
+function nameColor(n){let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))>>>0;return NAME_COLORS[h%NAME_COLORS.length]}
+let bc=null;try{bc=new BroadcastChannel('petArenaChat');bc.onmessage=e=>{const d=e.data;if(d&&typeof d.text==='string')chatAdd(cleanName(d.name||'Guest'),filterText(d.text.slice(0,100)),'',(Object.values(PETS).find(p=>p.emoji===d.pet)||{}).emoji)}}catch(e){}
+const BOT_AV={PixelPal:'🦊',NovaFan:'🦉',CaveRunner:'🐺',MossMaster:'🟢'};
+function chatAdd(name,text,kind,avatar){
+ const box=$('chatLog'),d=document.createElement('div'),own=!kind&&name===chat.name;
+ d.className='chat-line'+(kind?' '+kind:'')+(own?' own':'');
+ if(kind==='sys')d.textContent=text;
+ else{
+  const av=document.createElement('div');av.className='chat-av';av.style.background=nameColor(name);av.textContent=avatar||(own?pet().emoji:BOT_AV[name]||'🐾');
+  const b=document.createElement('div');b.className='chat-bub';
+  const n=document.createElement('div');n.className='chat-name';n.style.color=nameColor(name);n.textContent=name;
+  const t=document.createElement('div');t.textContent=text;b.append(n,t);d.append(av,b);
+ }
+ box.append(d);while(box.children.length>80)box.firstChild.remove();box.scrollTop=box.scrollHeight;
+ if(!chat.open&&kind!=='sys')$('chatToggle').classList.add('new');
+}
+function openChat(focus){chat.open=true;$('chatBox').classList.add('open');$('chatToggle').classList.remove('new');if(focus){heldKeys.clear();$('chatInput').focus()}}
+function toggleChat(){if(chat.open){chat.open=false;$('chatBox').classList.remove('open')}else openChat(false)}
+function submitChat(){const i=$('chatInput');sendChat(i.value);i.value=''}
+function sendChat(raw){
+ raw=String(raw).trim().slice(0,100);if(!raw)return;
+ const now=Date.now(),sys=t=>chatAdd('',t,'sys');
+ if(raw[0]==='/'){
+  const[c,...r]=raw.split(' ');
+  if(c==='/help')return sys('Commands: /name NewName · /clear · /help. Chat is filtered. Pals are NPCs; other tabs of this browser can chat with you.');
+  if(c==='/clear'){$('chatLog').innerHTML='';return}
+  if(c==='/name'){chat.name=cleanName(r.join(''));saveLocal();return sys('You are now '+chat.name+'.')}
+  return sys('Unknown command. Try /help.');
+ }
+ if(now-chat.last<1500)return sys('Slow down! You are chatting too fast.');
+ if(raw===chat.lastText&&now-chat.lastTextAt<10000)return sys("You already said that.");
+ chat.last=now;chat.lastText=raw;chat.lastTextAt=now;
+ const clean=filterText(raw);chatAdd(chat.name,clean);chat.bubble={text:clean,until:now+5000};
+ try{bc&&bc.postMessage({name:chat.name,text:clean,pet:pet().emoji})}catch(e){}
+}
+const BOTS=['PixelPal','NovaFan','CaveRunner','MossMaster'];
+const BOT_LINES=['Anyone found a treasure chest yet? 📦','Shiny monsters give double rewards ✨','Try the Volcano once you have 8 wins!','Special attacks are so strong 🔥','Look for the purple cave doors 🕳️','My pet just hit level 10!','Crits happen 15% of the time, so lucky!','Keep your win streak going for bonus coins 🔥','Rest before big fights 💚','Anyone want to trade pet tips?'];
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function botSay(t){chatAdd(pick(BOTS),t)}
+function botReact(m){
+ if(Math.random()>.45)return;
+ const lines=m&&m.shiny?['WOW you beat a shiny!! ✨','Shiny win! Nice!']:['Nice win!','GG!','Well fought! 💪','Easy work!'];
+ setTimeout(()=>botSay(pick(lines)),700+Math.random()*900);
+}
+function setupChat(){
+ if(chat.open)$('chatBox').classList.add('open');
+ $('chatOnline').textContent='🟢 '+(BOTS.length+1)+' pals online';$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitChat()}});
+ chatAdd('','Welcome to Pet Arena chat, '+chat.name+'! Be kind. Press / to chat, /help for commands.','sys');
+ setTimeout(()=>botSay('Hey there! Welcome 👋'),2500);
+ setInterval(()=>{if(Math.random()<.6)botSay(pick(BOT_LINES))},28000);
+}
+/* DIAMONDS, AVATAR, BOSSES */
+const DIAMOND_STORE_URL=''; /* put your payment page link here to enable the Buy button */
+const DIAMOND_DROP=0.000001; /* 0.0001% per monster defeated */
+const AV={
+ skin:[['Light','#f6d2b0'],['Tan','#e0a878'],['Warm','#c68642'],['Brown','#8d5524'],['Deep','#5a3a22'],['Mint','#9be3c0']],
+ hair:[['Brown','#49302a'],['Black','#1b1b24'],['Blonde','#e6c25a'],['Red','#b5472c'],['Blue','#3b6fd6']],
+ shirt:[['Blue','#3979d5',0],['Red','#d94d63',0],['Green','#3fae6a',0],['Yellow','#e3b83a',0],['Purple','#8b5fd6',1],['Black','#262633',1],['Gold','#e8b923',3],['Rainbow','rainbow',4]],
+ pants:[['Navy','#25395e',0],['Grey','#59607a',0],['Brown','#6b4a2f',0],['Black','#1b1b24',1],['Crimson','#9c2c3f',1],['Teal','#1f8a8a',2]],
+ hat:[['None','none',0],['Cap','cap',0],['Beanie','beanie',0],['Headband','band',0],['Cat Ears','cat',2],['Wizard Hat','wizard',3],['Crown','crown',5]],
+ acc:[['None','none',0],['Shades','shades',0],['Scarf','scarf',1],['Backpack','pack',2],['Cape','cape',3]]
+};
+const AV_DEF={skin:0,hair:0,shirt:0,pants:0,hat:1,acc:0};
+const AV_ICON={hat:['⛔','🧢','🧶','🎀','🐱','🧙','👑'],acc:['⛔','🕶️','🧣','🎒','🦸']};
+const AV_CATS=[['skin','Skin'],['hair','Hair'],['shirt','Shirt'],['pants','Pants'],['hat','Hat'],['acc','Extras']];
+let avTab='skin',avOpen=false,avPending='';
+function avPrice(c,i){return AV[c][i][2]||0}
+function avOwned(c,i){return avPrice(c,i)===0||state.admin||state.unlocked.includes(c+':'+i)}
+function avLook(){const a=state.avatar,g=c=>(AV[c][a[c]]||AV[c][0])[1];return{skin:g('skin'),hair:g('hair'),shirt:g('shirt'),pants:g('pants'),hat:g('hat'),acc:g('acc')}}
+function paintTrainer(c,w,bob,L){
+ const lift=a=>Math.max(0,a)*3,shirt=L.shirt==='rainbow'?'#ffffff':L.shirt;
+ c.fillStyle=L.pants;c.fillRect(9+w*4,19-lift(w),6,8+lift(w));c.fillRect(18-w*4,19-lift(-w),6,8+lift(-w));
+ c.fillStyle='#242333';c.fillRect(7+w*4,26-lift(w),9,4);c.fillRect(17-w*4,26-lift(-w),9,4);
+ c.translate(0,-bob);
+ if(L.acc==='cape'){c.fillStyle='#c0392b';c.fillRect(3-Math.abs(w)*2,12,8,16)}
+ if(L.acc==='pack'){c.fillStyle='#8a5a2b';c.fillRect(2,12,8,11);c.fillStyle='#5b3a1a';c.fillRect(2,16,8,2)}
+ c.fillStyle=shirt;c.fillRect(5,13+w*2,4,6);c.fillRect(24,13-w*2,4,6);
+ c.fillStyle=L.skin;c.fillRect(5,19+w*2,4,3);c.fillRect(24,19-w*2,4,3);
+ c.fillStyle=shirt;c.fillRect(8,12,17,10);
+ if(L.shirt==='rainbow')['#ff4d6d','#ffd166','#3fc786','#4de3ff'].forEach((k,i)=>{c.fillStyle=k;c.fillRect(8,12+i*3,17,2)});
+ if(L.acc==='scarf'){c.fillStyle='#d94d63';c.fillRect(8,11,17,3);c.fillRect(20,13,4,7)}
+ c.fillStyle=L.skin;c.fillRect(10,5,13,9);
+ c.fillStyle=L.hair;c.fillRect(9,4,15,4);
+ const h=L.hat;
+ if(h==='cap'){c.fillStyle='#d94d63';c.fillRect(8,2,17,4);c.fillStyle='#b03348';c.fillRect(21,5,8,2)}
+ else if(h==='beanie'){c.fillStyle='#3fae6a';c.fillRect(9,1,15,6);c.fillStyle='#fff';c.fillRect(15,-1,3,3)}
+ else if(h==='band'){c.fillStyle='#d94d63';c.fillRect(9,5,15,2)}
+ else if(h==='cat'){c.fillStyle=L.hair;c.fillRect(9,0,4,5);c.fillRect(20,0,4,5);c.fillStyle='#ff9bc2';c.fillRect(10,1,2,3);c.fillRect(21,1,2,3)}
+ else if(h==='wizard'){c.fillStyle='#5a3fb5';c.beginPath();c.moveTo(16.5,-9);c.lineTo(24,5);c.lineTo(9,5);c.closePath();c.fill();c.fillStyle='#4a2f99';c.fillRect(7,4,19,2);c.fillStyle='#ffd166';c.fillRect(15,0,3,3)}
+ else if(h==='crown'){c.fillStyle='#ffd166';c.fillRect(9,2,15,4);c.fillRect(9,0,3,3);c.fillRect(15,-1,3,4);c.fillRect(21,0,3,3)}
+ if(L.acc==='shades'){c.fillStyle='#111';c.fillRect(11,8,5,3);c.fillRect(19,8,5,3);c.fillRect(16,8,3,1)}
+ else{c.fillStyle='#171a2b';c.fillRect(12,9,2,2);c.fillRect(20,9,2,2)}
+}
+function drawAvPreview(time){
+ if(!avOpen)return;
+ const cv=$('avPreview'),c=cv.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,cv.width,cv.height);c.imageSmoothingEnabled=false;
+ c.setTransform(4,0,0,4,16,48);
+ paintTrainer(c,Math.sin(time/110),Math.abs(Math.cos(time/110))*2,avLook());
+ requestAnimationFrame(drawAvPreview);
+}
+function openAvatar(){avOpen=true;avPending='';$('avatarOverlay').classList.add('show');renderAvatar();requestAnimationFrame(drawAvPreview)}
+function closeAvatar(){avOpen=false;$('avatarOverlay').classList.remove('show')}
+function renderAvatar(){
+ $('avDiamonds').textContent=state.diamonds;
+ const tabs=$('avTabs');tabs.innerHTML='';
+ AV_CATS.forEach(([k,l])=>{const b=document.createElement('button');b.textContent=l;b.className=avTab===k?'active':'';b.onclick=()=>{avTab=k;avPending='';renderAvatar()};tabs.append(b)});
+ const holder=$('avItems');holder.innerHTML='';
+ AV[avTab].forEach((it,i)=>{
+  const b=document.createElement('button'),own=avOwned(avTab,i),sel=state.avatar[avTab]===i;b.className=sel?'sel':'';
+  const sw=document.createElement('span');sw.className='av-sw';
+  if(AV_ICON[avTab])sw.textContent=AV_ICON[avTab][i];else sw.style.background=it[1]==='rainbow'?'linear-gradient(90deg,#ff4d6d,#ffd166,#3fc786,#4de3ff)':it[1];
+  const n=document.createElement('div');n.textContent=it[0];
+  const pr=document.createElement('div');pr.className='small';pr.textContent=sel?'✅ Equipped':own?'Owned':'🔒 💠 '+avPrice(avTab,i);
+  b.append(sw,n,pr);b.onclick=()=>avPick(avTab,i);holder.append(b);
+ });
+}
+function avPick(cat,i){
+ if(!avOwned(cat,i)){
+  const pr=avPrice(cat,i),nm=AV[cat][i][0];
+  if(state.diamonds<pr)return showToast('You need '+pr+' 💠 diamonds for '+nm+'.');
+  if(avPending!==cat+':'+i){avPending=cat+':'+i;return showToast('Tap again to unlock '+nm+' for '+pr+' 💠')}
+  state.diamonds-=pr;state.unlocked.push(cat+':'+i);addLog('👕 Unlocked '+nm+'!');avPending='';
+ }
+ state.avatar[cat]=i;renderAvatar();renderStats();saveLocal();
+}
+function buyDiamonds(){if(!DIAMOND_STORE_URL)return showToast('💠 The diamond store is not connected yet.');window.open(DIAMOND_STORE_URL,'_blank','noopener')}
+const BOSS_DEF={
+ meadow:{name:'Thorn Boar King',emoji:'🐗',tint:'#8bd05a',type:'Grass',lx:14,ly:-9},
+ cave:{name:'Crystal Weaver',emoji:'🕷️',tint:'#4de3ff',type:'Crystal',lx:-13,ly:-10},
+ volcano:{name:'Lava Ogre',emoji:'👹',tint:'#ff5a2a',type:'Fire',lx:12,ly:12}
+};
+function lairPos(){const d=BOSS_DEF[state.zoneKey]||BOSS_DEF.meadow;for(let k=0;k<40;k++){const x=d.lx+k%5,y=d.ly+Math.floor(k/5);if(isWalkable(x,y))return{x,y}}return{x:d.lx,y:d.ly}}
+function bossReady(){const b=state.bossAt[state.zoneKey];return b===undefined||state.wins-b>=3}
+function makeBoss(x,y){
+ const d=BOSS_DEF[state.zoneKey]||BOSS_DEF.meadow,level=MAX_LEVEL,hp=90+level*28;
+ return{id:'m'+nextMonsterId++,x,y,boss:true,name:d.name,emoji:d.emoji,tint:d.tint,type:d.type,level,maxHp:hp,hp,atk:12+level*2,xpReward:140+level*20,coinReward:100+level*12,color:d.tint};
+}
+function bossLair(){
+ if(state.inCave||!bossReady()||state.monsters.some(m=>m.boss))return;
+ const p=lairPos();if(nearPlayer(p.x,p.y,10))state.monsters.push(makeBoss(p.x,p.y));
+}
+function spawnBossNearby(){
+ const px=Math.round(state.x),py=Math.round(state.y);
+ for(const [dx,dy] of [[3,0],[-3,0],[0,3],[0,-3],[4,2]]){const x=px+dx,y=py+dy;if(isWalkable(x,y)&&!state.monsters.some(m=>m.x===x&&m.y===y)){state.monsters.push(makeBoss(x,y));addLog('👑 A boss was summoned!');return}}
+ showToast('No room to spawn a boss.');
+}
+window.addEventListener('resize',()=>drawMap(performance.now()));
+populateAdminSpawner();
+initialiseGame();
+</script>
+<script>
+/* Shared Fandom Nexus login indicator. Game progress remains saved locally in this browser. */
+(async function setupNexusAccountStatus() {
+  const status = document.getElementById('nexusAuthStatus');
+  const accountLink = document.getElementById('nexusAccountLink');
+  const logoutButton = document.getElementById('nexusLogoutButton');
+
+  function showAccount(user) {
+    if (user) {
+      status.textContent = 'Signed in: ' + (user.email || 'Fandom Nexus member');
+      accountLink.textContent = 'My account';
+      accountLink.href = 'account.htm';
+      logoutButton.style.display = 'inline-block';
+    } else {
+      status.textContent = 'Playing as guest';
+      accountLink.textContent = 'Log in / Sign up';
+      accountLink.href = 'account.htm';
+      logoutButton.style.display = 'none';
+    }
+  }
+
+  if (!window.supabase || typeof supabaseClient === 'undefined') {
+    status.textContent = 'Account connection unavailable';
+    accountLink.textContent = 'Open account page';
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient.auth.getUser();
+    if (error) throw error;
+    showAccount(data.user);
+  } catch (error) {
+    console.error('Could not check Fandom Nexus session:', error);
+    showAccount(null);
+  }
+
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    showAccount(session ? session.user : null);
+  });
+
+  logoutButton.addEventListener('click', async () => {
+    logoutButton.disabled = true;
+    const { error } = await supabaseClient.auth.signOut();
+    logoutButton.disabled = false;
+    if (error) {
+      console.error('Log out failed:', error);
+      status.textContent = 'Could not log out. Try again.';
+      return;
+    }
+    showAccount(null);
+  });
+})();
+</script>
+</body>
+</html>
