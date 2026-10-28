@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Fandom Nexus</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-wrap { max-width: 1000px; margin: 35px auto; padding: 20px; }
+    .admin-panel { margin: 20px 0; padding: 20px; border: 1px solid #444; border-radius: 14px; }
+    .admin-panel input, .admin-panel select, .admin-panel textarea {
+      display: block; width: 100%; box-sizing: border-box;
+      margin: 8px 0 14px; padding: 11px; border-radius: 8px;
+    }
+    .admin-item { padding: 14px 0; border-bottom: 1px solid #444; overflow-wrap: anywhere; }
+    .admin-item button, .admin-panel button { margin: 5px; cursor: pointer; }
+    .admin-status { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .admin-muted { opacity: .75; }
+  </style>
+</head>
+<body>
+  <header class="fn-header">
+    <nav class="fn-nav">
+      <a href="index.htm" class="fn-logo">Fandom Nexus</a>
+      <a href="index.htm">Home</a>
+      <a href="communities.htm">Communities</a>
+      <a href="feed.htm">Feed</a>
+      <a href="profile.htm">Profile</a>
+      <a href="account.htm">Account</a>
+    </nav>
+  </header>
+
+  <main class="admin-wrap">
+    <h1>Admin Dashboard</h1>
+    <p class="admin-muted">Moderation tools for authorised administrators.</p>
+    <p id="admin-status" class="admin-status">Checking your account…</p>
+
+    <div id="admin-tools" hidden>
+      <section class="admin-panel">
+        <h2>Timeout or ban a user</h2>
+        <p>Use the user's Supabase UID. A timeout requires an expiry date and time.</p>
+        <form id="moderation-form">
+          <label for="target-uid">User UID</label>
+          <input id="target-uid" required placeholder="User UUID">
+
+          <label for="moderation-action">Action</label>
+          <select id="moderation-action">
+            <option value="timeout">Timeout</option>
+            <option value="ban">Ban</option>
+          </select>
+
+          <label for="timeout-expiry">Timeout ends at (your local time)</label>
+          <input id="timeout-expiry" type="datetime-local">
+
+          <label for="moderation-reason">Reason</label>
+          <textarea id="moderation-reason" rows="3" maxlength="500"
+            placeholder="Reason for moderation"></textarea>
+
+          <button type="submit">Apply restriction</button>
+          <button type="button" id="unrestrict-button">Lift restriction</button>
+        </form>
+        <p id="moderation-message" class="admin-status"></p>
+      </section>
+
+      <section class="admin-panel">
+        <h2>Recent posts</h2>
+        <button type="button" id="refresh-posts">Refresh posts</button>
+        <div id="admin-posts">Loading posts…</div>
+      </section>
+
+      <section class="admin-panel">
+        <h2>Recent comments and replies</h2>
+        <button type="button" id="refresh-comments">Refresh comments</button>
+        <div id="admin-comments">Loading comments…</div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script>
+    const statusBox = document.getElementById("admin-status");
+    const toolsBox = document.getElementById("admin-tools");
+    const moderationMessage = document.getElementById("moderation-message");
+
+    function showMessage(element, message) {
+      element.textContent = message;
+    }
+
+    function safeText(value) {
+      return String(value ?? "");
+    }
+
+    async function checkAdmin() {
+      const { data: { user }, error: userError } =
+        await supabaseClient.auth.getUser();
+
+      if (userError || !user) {
+        showMessage(statusBox, "Please sign in first, then reopen this page.");
+        return false;
+      }
+
+      const { data: isAdmin, error } =
+        await supabaseClient.rpc("current_user_is_admin");
+
+      if (error || isAdmin !== true) {
+        showMessage(statusBox, "Admin access denied. Sign in with your authorised admin account.");
+        return false;
+      }
+
+      showMessage(statusBox, "Admin access confirmed.");
+      toolsBox.hidden = false;
+      return true;
+    }
+
+    async function loadPosts() {
+      const container = document.getElementById("admin-posts");
+      container.textContent = "Loading posts…";
+
+      const { data, error } = await supabaseClient
+        .from("posts")
+        .select("id, title, content, username, community, created_at, user_id")
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) {
+        container.textContent = "Could not load posts: " + error.message;
+        return;
+      }
+
+      container.replaceChildren();
+
+      if (!data || data.length === 0) {
+        container.textContent = "No posts found.";
+        return;
+      }
+
+      for (const post of data) {
+        const item = document.createElement("div");
+        item.className = "admin-item";
+
+        const details = document.createElement("p");
+        details.textContent =
+          "#" + post.id + " · " + (post.username || "Fan") +
+          " · " + (post.community || "general") +
+          "\n" + (post.title || "Untitled") +
+          "\n" + (post.content || "") +
+          "\nUser UID: " + (post.user_id || "Unknown");
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete post";
+        deleteButton.addEventListener("click", async () => {
+          if (!confirm("Permanently delete post #" + post.id +
+              " and its related comments, likes and notifications?")) return;
+
+          deleteButton.disabled = true;
+          const { error } = await supabaseClient.rpc("admin_delete_post", {
+            p_post_id: post.id
+          });
+
+          if (error) {
+            alert("Delete failed: " + error.message);
+            deleteButton.disabled = false;
+            return;
+          }
+
+          await loadPosts();
+          await loadComments();
+        });
+
+        item.append(details, deleteButton);
+        container.append(item);
+      }
+    }
+
+    async function loadComments() {
+      const container = document.getElementById("admin-comments");
+      container.textContent = "Loading comments…";
+
+      const { data, error } = await supabaseClient
+        .from("post_comments")
+        .select("id, post_id, parent_id, user_id, content, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) {
+        container.textContent = "Could not load comments: " + error.message;
+        return;
+      }
+
+      container.replaceChildren();
+
+      if (!data || data.length === 0) {
+        container.textContent = "No comments found.";
+        return;
+      }
+
+      for (const comment of data) {
+        const item = document.createElement("div");
+        item.className = "admin-item";
+
+        const details = document.createElement("p");
+        details.textContent =
+          "Comment #" + comment.id +
+          " · Post #" + comment.post_id +
+          (comment.parent_id ? " · Reply to #" + comment.parent_id : " · Top-level comment") +
+          "\n" + (comment.content || "") +
+          "\nUser UID: " + (comment.user_id || "Unknown");
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete comment thread";
+        deleteButton.addEventListener("click", async () => {
+          if (!confirm("Delete comment #" + comment.id +
+              " and its replies?")) return;
+
+          deleteButton.disabled = true;
+          const { error } = await supabaseClient.rpc("admin_delete_comment", {
+            p_comment_id: comment.id
+          });
+
+          if (error) {
+            alert("Delete failed: " + error.message);
+            deleteButton.disabled = false;
+            return;
+          }
+
+          await loadComments();
+        });
+
+        item.append(details, deleteButton);
+        container.append(item);
+      }
+    }
+
+    document.getElementById("moderation-action").addEventListener("change", event => {
+      document.getElementById("timeout-expiry").required =
+        event.target.value === "timeout";
+    });
+
+    document.getElementById("moderation-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      moderationMessage.textContent = "";
+
+      const uid = document.getElementById("target-uid").value.trim();
+      const action = document.getElementById("moderation-action").value;
+      const reason = document.getElementById("moderation-reason").value.trim();
+      const expiryInput = document.getElementById("timeout-expiry").value;
+
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uid)) {
+        showMessage(moderationMessage, "Enter a valid user UUID.");
+        return;
+      }
+
+      let expiry = null;
+      if (action === "timeout") {
+        if (!expiryInput) {
+          showMessage(moderationMessage, "Choose when the timeout should end.");
+          return;
+        }
+        expiry = new Date(expiryInput).toISOString();
+        if (new Date(expiry) <= new Date()) {
+          showMessage(moderationMessage, "Expiry must be in the future.");
+          return;
+        }
+      }
+
+      const { error } = await supabaseClient.rpc("admin_restrict_user", {
+        p_user_id: uid,
+        p_action: action,
+        p_reason: reason,
+        p_expires_at: expiry
+      });
+
+      if (error) {
+        showMessage(moderationMessage, "Action failed: " + error.message);
+        return;
+      }
+
+      showMessage(moderationMessage, action === "ban"
+        ? "Ban recorded successfully."
+        : "Timeout recorded successfully.");
+      event.target.reset();
+      document.getElementById("timeout-expiry").required = true;
+    });
+
+    document.getElementById("unrestrict-button").addEventListener("click", async () => {
+      const uid = document.getElementById("target-uid").value.trim();
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uid)) {
+        showMessage(moderationMessage, "Enter a valid user UUID first.");
+        return;
+      }
+
+      const reason = document.getElementById("moderation-reason").value.trim();
+      if (!confirm("Lift the active restriction for this user?")) return;
+
+      const { error } = await supabaseClient.rpc("admin_unrestrict_user", {
+        p_user_id: uid,
+        p_reason: reason
+      });
+
+      showMessage(moderationMessage, error
+        ? "Could not lift restriction: " + error.message
+        : "Restriction lifted.");
+    });
+
+    document.getElementById("refresh-posts").addEventListener("click", loadPosts);
+    document.getElementById("refresh-comments").addEventListener("click", loadComments);
+
+    (async () => {
+      if (await checkAdmin()) {
+        await loadPosts();
+        await loadComments();
+      }
+    })();
+  </script>
+</body>
+</html>

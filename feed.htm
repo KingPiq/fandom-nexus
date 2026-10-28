@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Feed | Fandom Nexus</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.htm">✦ Fandom Nexus</a>
+    <nav class="site-nav">
+      <a href="index.htm">Home</a>
+      <a href="communities.htm">Communities</a>
+      <a href="account.htm">Account</a>
+      <a class="active" href="feed.htm">Community Feed</a>
+      <a href="profile.htm">My Profile</a>
+      <a href="about.htm">About</a>
+    </nav>
+    <span id="nav-user" class="nav-user">Guest</span>
+  </header>
+
+  <main class="container feed-layout">
+    <section class="page-intro">
+      <p class="eyebrow">WHAT'S HAPPENING?</p>
+      <h1>Community <span>Feed</span></h1>
+      <p>Share your thoughts and discover what other fans are discussing.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Choose a channel</h2>
+      <div id="channel-toolbar" class="toolbar">
+        <a class="button button-secondary" href="feed.htm">All channels</a>
+        <a class="button button-secondary" href="feed.htm?channel=anime">⚡ Anime</a>
+        <a class="button button-secondary" href="feed.htm?channel=manga">📚 Manga</a>
+        <a class="button button-secondary" href="feed.htm?channel=gaming">🎮 Gaming</a>
+        <a class="button button-secondary" href="feed.htm?channel=general">🌌 General Fandom</a>
+      </div>
+      <h2 id="channel-heading">All Community Channels</h2>
+      <p id="channel-description" class="muted">Explore posts from every fandom community.</p>
+    </section>
+
+    <section id="create-post-panel" class="panel">
+      <h2>Create a post</h2>
+      <p id="post-login-notice" class="muted">Log in on the Account page to publish a post.</p>
+
+      <form id="post-form" class="form-stack" hidden>
+        <label for="post-community">Choose a channel</label>
+        <select id="post-community" required>
+          <option value="anime">⚡ Anime</option>
+          <option value="manga">📚 Manga</option>
+          <option value="gaming">🎮 Gaming</option>
+          <option value="general" selected>🌌 General Fandom</option>
+        </select>
+
+        <label for="post-title">Post title</label>
+        <input id="post-title" maxlength="150" placeholder="Give your post a title..." required>
+
+        <label for="post-content">What's on your mind?</label>
+        <textarea id="post-content" rows="5" maxlength="10000" placeholder="Share your thoughts with the community..." required></textarea>
+
+        <button class="button" type="submit">Publish post</button>
+      </form>
+      <p id="post-message" class="status-message" role="status"></p>
+    </section>
+
+    <section class="feed-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">FAN CONVERSATIONS</p>
+          <h2>Latest posts</h2>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <label for="search">Search posts</label>
+        <input id="search" type="search" placeholder="Search post titles and content...">
+      </div>
+
+      <div id="posts-feed" aria-live="polite">
+        <p class="empty-state">Loading posts...</p>
+      </div>
+      <p id="no-results" class="empty-state" hidden>No posts match your search.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">Fandom Nexus · Made for fans, by fans.</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

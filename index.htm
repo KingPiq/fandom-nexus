@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b16">
+  <title>Fandom Nexus | Home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.htm">✦ Fandom Nexus</a>
+    <nav class="site-nav">
+      <a class="active" href="index.htm">Home</a>
+      <a href="communities.htm">Communities</a>
+      <a href="account.htm">Account</a>
+      <a href="feed.htm">Community Feed</a>
+      <a href="profile.htm">My Profile</a>
+      <a href="about.htm">About</a>
+    </nav>
+    <span id="nav-user" class="nav-user">Guest</span>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <p class="eyebrow">YOUR FANDOM. YOUR PEOPLE.</p>
+      <h1>Welcome to <span>Fandom Nexus</span></h1>
+      <p class="hero-text">
+        Find your people, share your theories, celebrate your favourite
+        stories and discover your next obsession.
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="communities.htm">Explore communities</a>
+        <a class="button button-secondary" href="feed.htm">View community feed</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">FIND YOUR CORNER</p>
+          <h2>Explore communities</h2>
+        </div>
+        <a href="communities.htm">View all →</a>
+      </div>
+
+      <div class="community-grid">
+        <a class="card community-card" href="feed.htm?channel=anime">
+          <span class="community-icon">⚡</span>
+          <h3>Anime</h3>
+          <p>Characters, episodes, theories and recommendations.</p>
+          <span class="card-link">Explore Anime →</span>
+        </a>
+        <a class="card community-card" href="feed.htm?channel=manga">
+          <span class="community-icon">📚</span>
+          <h3>Manga</h3>
+          <p>Discover series, share reviews and discuss storylines.</p>
+          <span class="card-link">Explore Manga →</span>
+        </a>
+        <a class="card community-card" href="feed.htm?channel=gaming">
+          <span class="community-icon">🎮</span>
+          <h3>Gaming</h3>
+          <p>Games, tips, updates and fellow players.</p>
+          <span class="card-link">Explore Gaming →</span>
+        </a>
+        <a class="card community-card" href="feed.htm?channel=general">
+          <span class="community-icon">🌌</span>
+          <h3>General Fandom</h3>
+          <p>Talk about everything else you love.</p>
+          <span class="card-link">Explore General →</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-cta">
+      <div>
+        <p class="eyebrow">BE PART OF THE STORY</p>
+        <h2>Have something to share?</h2>
+        <p>Create a post and join the conversation.</p>
+      </div>
+      <a class="button" href="account.htm">Join the community</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">Fandom Nexus · Made for fans, by fans.</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

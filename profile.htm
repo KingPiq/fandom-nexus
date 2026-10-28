@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile | Fandom Nexus</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.htm">✦ Fandom Nexus</a>
+    <nav class="site-nav">
+      <a href="index.htm">Home</a>
+      <a href="communities.htm">Communities</a>
+      <a href="account.htm">Account</a>
+      <a href="feed.htm">Community Feed</a>
+      <a class="active" href="profile.htm">My Profile</a>
+      <a href="about.htm">About</a>
+    </nav>
+    <span id="nav-user" class="nav-user">Guest</span>
+  </header>
+
+  <main class="container narrow-container">
+    <section class="page-intro">
+      <p class="eyebrow">YOUR SPACE</p>
+      <h1>My <span>Profile</span></h1>
+      <p>Tell the community a little about yourself and your favourite fandoms.</p>
+    </section>
+
+    <section class="panel">
+      <div class="profile-picture-area">
+        <img id="profile-picture-preview" class="profile-picture" alt="Your profile picture" hidden>
+        <div class="muted">Your profile picture</div>
+      </div>
+
+      <p id="profile-login-notice" class="status-message">Checking account...</p>
+
+      <form id="profile-form" class="form-stack" hidden>
+        <label for="profile-username">Username</label>
+        <input id="profile-username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]+" required>
+
+        <label for="profile-bio">Bio</label>
+        <textarea id="profile-bio" rows="4" maxlength="500" placeholder="Tell people about yourself..."></textarea>
+
+        <label for="profile-fandom">Favourite fandom</label>
+        <input id="profile-fandom" maxlength="100" placeholder="e.g. your favourite anime, book or game">
+
+        <button class="button" type="submit">Save profile</button>
+      </form>
+
+      <p id="profile-message" class="status-message" role="status"></p>
+
+      <div id="avatar-upload-area" class="form-stack">
+        <label for="profile-picture-input">Choose a profile picture</label>
+        <input id="profile-picture-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+        <small class="muted">PNG, JPG, WEBP or GIF; maximum 3 MB.</small>
+        <button id="upload-picture-button" class="button button-secondary" type="button">Upload picture</button>
+        <p id="picture-message" class="status-message" role="status"></p>
+      </div>
+
+      <p class="muted">Need to log in? Visit the <a href="account.htm">Account page</a>.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">Fandom Nexus · Made for fans, by fans.</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
