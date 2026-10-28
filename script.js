@@ -1578,3 +1578,30 @@ supabaseClient.auth.onAuthStateChange(() => {
 updatePostAccess();
 refreshAccount();
 loadPosts();
+
+/* DISABLE RIGHT-CLICK AND COMMON SOURCE SHORTCUTS */
+document.addEventListener("contextmenu", function (event) {
+  event.preventDefault();
+});
+
+document.addEventListener("keydown", function (event) {
+  const key = event.key.toLowerCase();
+
+  // Block Ctrl+U / Cmd+U (View Source)
+  if ((event.ctrlKey || event.metaKey) && key === "u") {
+    event.preventDefault();
+  }
+
+  // Block Ctrl+Shift+I / Cmd+Option+I (Developer Tools)
+  if (
+    (event.ctrlKey && event.shiftKey && key === "i") ||
+    (event.metaKey && event.altKey && key === "i")
+  ) {
+    event.preventDefault();
+  }
+
+  // Block F12
+  if (key === "f12") {
+    event.preventDefault();
+  }
+});
